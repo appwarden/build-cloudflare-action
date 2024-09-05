@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.74
+
+### Patch Changes
+
+- [`2820d972c455d1d3c884dcea55f627fc2e89bd92`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/2820d972c455d1d3c884dcea55f627fc2e89bd92) Thanks [@stevefrench39](https://github.com/stevefrench39)! - rename action
+
 ## 1.1.73
 
 ### Patch Changes
