@@ -1,5 +1,13 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.76
+
+### Patch Changes
+
+- [`a24953ff833237ab4191582e38220517a2e5852f`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/a24953ff833237ab4191582e38220517a2e5852f) Thanks [@stevefrench39](https://github.com/stevefrench39)! - programatically fetch latest middleware version
+
+- [`d853a5e1a27ff1063087c662651dc7a7e3039edc`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/d853a5e1a27ff1063087c662651dc7a7e3039edc) Thanks [@stevefrench39](https://github.com/stevefrench39)! - programatically fetch latest middleware version
+
 ## 1.1.75
 
 ### Patch Changes
