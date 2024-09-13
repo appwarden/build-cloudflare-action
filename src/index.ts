@@ -13,7 +13,8 @@ import {
 import { AppwardenConfig } from "./types"
 import { ensureProtocol } from "./utils"
 
-const middlewareVersion = "1.2.1-beta.5"
+// @ts-expect-error tsup config
+const middlewareVersion = MIDDLEWARE_VERSION
 
 const Debug = (debug: boolean) => (msg: unknown) => {
   if (debug) {
@@ -204,7 +205,6 @@ async function main() {
     await writeFile(`${middlewareDir}/${fileName}`, fileContent)
     debug(`Generated ${fileName}:\n ${fileContent}`)
   }
-
 
   const files = await readdir(middlewareDir)
   debug(`✅ Generated ${files.toString().split(",").join(", ")}`)

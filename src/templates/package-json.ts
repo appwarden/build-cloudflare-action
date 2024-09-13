@@ -11,7 +11,7 @@ export const packageJsonTemplate = `
   "author": "support@appwarden.io",
   "license": "MIT",
   "dependencies": {
-    "@appwarden/cloudflare": "{{VERSION}}"
+    "@appwarden/middleware": "{{VERSION}}"
   }
 }
 `
