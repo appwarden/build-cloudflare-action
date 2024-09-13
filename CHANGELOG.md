@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.75
+
+### Patch Changes
+
+- [`374ab617b6e71400abdaaa3729a65e6c501fe5fc`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/374ab617b6e71400abdaaa3729a65e6c501fe5fc) Thanks [@stevefrench39](https://github.com/stevefrench39)! - refactor to tsup
+
 ## 1.1.74
 
 ### Patch Changes
