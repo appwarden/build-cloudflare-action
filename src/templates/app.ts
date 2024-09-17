@@ -2,7 +2,7 @@ export const appTemplate = `
 import {
   useContentSecurityPolicy,
   withAppwardenOnCloudflare,
-} from "@appwarden/cloudflare"
+} from "@appwarden/middleware/cloudflare"
 
 export default {
   fetch: withAppwardenOnCloudflare((context) => ({
