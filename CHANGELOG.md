@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.80
+
+### Patch Changes
+
+- [`7c23f98bed003fc08092935a9b423429c587be63`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/7c23f98bed003fc08092935a9b423429c587be63) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fix extension in action.yml file
+
 ## 1.1.79
 
 ### Patch Changes
