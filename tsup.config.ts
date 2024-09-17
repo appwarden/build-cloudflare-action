@@ -17,7 +17,7 @@ export default defineConfig(async () => {
 
   return {
     entry: ["src/index.ts"],
-    format: ["esm"],
+    format: ["cjs"],
     outDir: "dist",
     minify: false,
     clean: true,
