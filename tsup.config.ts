@@ -1,11 +1,5 @@
 import { defineConfig } from "tsup"
 
-declare var process: {
-  env: {
-    MIDDLEWARE_VERSION: string
-  }
-}
-
 const v = (value: string | number | boolean) => JSON.stringify(value)
 
 const getLatestMiddleware = () =>
@@ -19,6 +13,8 @@ export default defineConfig(async () => {
     throw new Error("Failed to fetch latest middleware version")
   }
 
+  console.log(`Building with @appwarden/middleware@${middlewareVersion}\n`)
+
   return {
     entry: ["src/index.ts"],
     format: ["esm"],
@@ -27,6 +23,8 @@ export default defineConfig(async () => {
     clean: true,
     dts: false,
     bundle: true,
+    // https://github.com/egoist/tsup/issues/619#issuecomment-1420423401
+    noExternal: [/(.*)/],
     define: {
       MIDDLEWARE_VERSION: v(middlewareVersion),
     },
