@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.78
+
+### Patch Changes
+
+- [`10c1c912dd04317f0388a0f6624608a18678e26e`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/10c1c912dd04317f0388a0f6624608a18678e26e) Thanks [@stevefrench39](https://github.com/stevefrench39)! - convert to cjs
+
 ## 1.1.77
 
 ### Patch Changes
