@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.82
+
+### Patch Changes
+
+- [`ac33c04e9599577854254a4cbac970e2cd40d4e5`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/ac33c04e9599577854254a4cbac970e2cd40d4e5) Thanks [@stevefrench39](https://github.com/stevefrench39)! - update appwarden middleware build target
+
 ## 1.1.81
 
 ### Patch Changes
