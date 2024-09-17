@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.79
+
+### Patch Changes
+
+- [`e3403e03c29110aa8518512916398bd54cf0742b`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/e3403e03c29110aa8518512916398bd54cf0742b) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fix dist file extension
+
 ## 1.1.78
 
 ### Patch Changes
