@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.81
+
+### Patch Changes
+
+- [`578933b51ecef1cf8118a3a447b2603f5e6fce37`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/578933b51ecef1cf8118a3a447b2603f5e6fce37) Thanks [@stevefrench39](https://github.com/stevefrench39)! - clean extension version
+
 ## 1.1.80
 
 ### Patch Changes
