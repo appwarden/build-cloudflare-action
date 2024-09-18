@@ -57,12 +57,15 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Git config
+        if: steps.changesets.outputs.published == 'true'
         run: |
           git config user.name github-actions
           git config user.email github-actions@github.com
 
       - name: Tag new target
+        if: steps.changesets.outputs.published == 'true'
         run: git tag -f ${{ env.MAJOR_VERSION }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}
 
       - name: Push new tag
+        if: steps.changesets.outputs.published == 'true'
         run: git push origin ${{ env.MAJOR_VERSION }} --force
