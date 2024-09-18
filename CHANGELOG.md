@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-middleware-action
 
+## 1.1.84
+
+### Patch Changes
+
+- [`b22937e92cc2e7dc0ff4c375a1e697683007d62c`](https://github.com/appwarden/build-cloudflare-middleware-action/commit/b22937e92cc2e7dc0ff4c375a1e697683007d62c) Thanks [@stevefrench39](https://github.com/stevefrench39)! - testing major version tag
+
 ## 1.1.83
 
 ### Patch Changes
