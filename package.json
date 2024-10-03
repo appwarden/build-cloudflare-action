@@ -1,16 +1,16 @@
 {
-  "name": "@appwarden/build-cloudflare-middleware-action",
-  "version": "1.1.87",
+  "name": "@appwarden/build-cloudflare-action",
+  "version": "1.0.0",
   "description": "Easy-to-use GitHub Action to build Appwarden for deployment to your Cloudflare domain",
   "author": "support@appwarden.io",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/appwarden/build-cloudflare-middleware-action/issues"
+    "url": "https://github.com/appwarden/build-cloudflare-action/issues"
   },
-  "homepage": "https://github.com/appwarden/build-cloudflare-middleware-action#readme",
+  "homepage": "https://github.com/appwarden/build-cloudflare-action#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/appwarden/build-cloudflare-middleware-action.git"
+    "url": "git+https://github.com/appwarden/build-cloudflare-action.git"
   },
   "keywords": [
     "appwarden",

@@ -1,4 +1,4 @@
-name: "@appwarden/build-cloudflare-middleware-action"
+name: "@appwarden/build-cloudflare-action"
 branding:
   icon: cloud
   color: orange
