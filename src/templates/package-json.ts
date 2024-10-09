@@ -5,7 +5,7 @@ export const hydratePackageJson = (
 
 export const packageJsonTemplate = `
 {
-  "name": "@appwarden/app",
+  "name": "@appwarden/compiled-middleware",
   "version": "{{VERSION}}",
   "type": "module",
   "author": "support@appwarden.io",

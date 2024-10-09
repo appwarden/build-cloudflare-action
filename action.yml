@@ -16,6 +16,10 @@ inputs:
     required: true
     type: string
     description: Cloudflare account id
+  appwarden-api-token:
+    required: true
+    type: string
+    description: Appwarden API token
 runs:
   using: node20
   main: dist/index.js

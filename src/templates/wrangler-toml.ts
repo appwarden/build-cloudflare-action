@@ -1,22 +1,36 @@
 import jsesc from "jsesc"
-import { Config } from "../types"
+import { ApiMiddlewareOptions, Config } from "../types"
+import { disableContentSecurityPolicy } from "../utils"
 
-export const hydrateWranglerTemplate = (template: string, data: Config) =>
+export const hydrateWranglerTemplate = (
+  template: string,
+  data: Config,
+  middlewareConfig: ApiMiddlewareOptions,
+) =>
   template
     .replaceAll("{{DOMAIN_HOSTNAME}}", data.hostname)
     .replaceAll("{{ACCOUNT_ID}}", data.cloudflareAccountId)
     .replaceAll("{{LOCK_PAGE_SLUG}}", data.lockPageSlug)
     .replaceAll("{{PATTERN}}", `*${data.hostname}/*`)
     .replaceAll("{{ZONE_NAME}}", data.hostname)
-    .replaceAll("{{CSP_ENFORCE}}", data.cspEnforced!.toString())
+    .replaceAll(
+      "{{CSP_ENFORCE}}",
+      middlewareConfig?.["csp-enforced"]
+        ? middlewareConfig["csp-enforced"].toString()
+        : disableContentSecurityPolicy,
+    )
     .replaceAll(
       "{{CSP_DIRECTIVES}}",
-      jsesc(JSON.stringify(data.cspDirectives), { quotes: "double" }),
+      middlewareConfig?.["csp-directives"]
+        ? jsesc(JSON.stringify(middlewareConfig["csp-directives"]), {
+            quotes: "double",
+          })
+        : "",
     )
 
 export const wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
-name = "appwarden"
+name = "appwarden-middleware"
 account_id = "{{ACCOUNT_ID}}"
 compatibility_date = "2024-08-18"
 

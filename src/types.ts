@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ConfigSchema, ContentSecurityPolicySchema } from "./schema"
+import { ConfigSchema } from "./schema"
 
 type AnyRecord = Record<string, unknown>
 
@@ -31,6 +31,10 @@ export interface Middleware {
 }
 
 export type Config = z.infer<typeof ConfigSchema>
-export type ContentSecurityPolicyType = z.infer<
-  typeof ContentSecurityPolicySchema
->
+
+export type ApiMiddlewareOptions = {
+  debug?: boolean
+  "lock-page-slug"?: string
+  "csp-enforced"?: boolean | undefined
+  "csp-directives"?: Record<string, string>
+}

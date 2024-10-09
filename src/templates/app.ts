@@ -1,3 +1,5 @@
+import { disableContentSecurityPolicy } from "../utils"
+
 export const appTemplate = `
 import {
   useContentSecurityPolicy,
@@ -11,7 +13,7 @@ export default {
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     middleware: {
       before:
-        typeof context.env.CSP_ENFORCE === undefined
+        context.env.CSP_ENFORCE === ${disableContentSecurityPolicy}
           ? []
           : [
               useContentSecurityPolicy({
