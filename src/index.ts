@@ -19,8 +19,10 @@ const Debug = (debug: boolean) => (msg: unknown) => {
   }
 }
 
+let debug: (msg: unknown) => void
+
 async function main() {
-  const debug = Debug(core.getInput("debug") === "true")
+  debug = Debug(core.getInput("debug") === "true")
 
   let hostname = core.getInput("hostname")
   try {
@@ -108,6 +110,7 @@ async function main() {
 }
 
 main().catch((err) => {
+  debug(err)
   core.error(err)
   core.setFailed(err.message)
 })
