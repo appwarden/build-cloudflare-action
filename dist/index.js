@@ -23390,7 +23390,7 @@ async function main() {
   let hostname = core.getInput("hostname");
   try {
     new URL(`https://${hostname}`);
-  } catch {
+  } catch (err) {
     hostname = "";
   }
   if (!hostname) {

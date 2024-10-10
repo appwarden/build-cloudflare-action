@@ -5,6 +5,6 @@ pre-push:
     check:
       run: |
         if [[ -n $(git status --porcelain) ]]; then
-          echo "dist files do not match the current commit. Please run 'npm run build' and commit the changes."
+          echo "dist files do not match the current commit. Please include the build files in your commit."
           exit 1
         fi
