@@ -48,6 +48,7 @@ jobs:
         run: npm run build
 
       - name: Check for uncommitted changes
+        if: steps.changesets.outputs.published == 'true'
         run: |
           if [[ -n $(git status --porcelain) ]]; then
             echo "dist files do not match the current commit. Please run 'npm run build' and commit the changes."
