@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.8
+
+### Patch Changes
+
+- [`436ed7974120bc238bcaa2b338c74a4a2842a8dc`](https://github.com/appwarden/build-cloudflare-action/commit/436ed7974120bc238bcaa2b338c74a4a2842a8dc) Thanks [@stevefrench39](https://github.com/stevefrench39)! - guarding against missing dist files
+
 ## 1.0.7
 
 ### Patch Changes
