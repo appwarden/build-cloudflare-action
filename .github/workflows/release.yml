@@ -47,6 +47,13 @@ jobs:
         if: steps.changesets.outputs.published == 'true'
         run: npm run build
 
+      - name: Check for uncommitted changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "dist files do not match the current commit. Please run 'npm run build' and commit the changes."
+            exit 1
+          fi
+
       - name: Publish
         if: steps.changesets.outputs.published == 'true'
         uses: teunmooij/github-versioned-release@v1
@@ -62,7 +69,7 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
 
-      - name: Tag new target
+      - name: Tag new major version target
         if: steps.changesets.outputs.published == 'true'
         run: git tag -f ${{ env.MAJOR_VERSION }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}
 
