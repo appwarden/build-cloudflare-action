@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.6
+
+### Patch Changes
+
+- [`204b3c5450017e836e1e6558de298059b486c220`](https://github.com/appwarden/build-cloudflare-action/commit/204b3c5450017e836e1e6558de298059b486c220) Thanks [@stevefrench39](https://github.com/stevefrench39)! - added lefthook to build process
+
 ## 1.0.5
 
 ### Patch Changes
