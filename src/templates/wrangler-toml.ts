@@ -4,25 +4,25 @@ import { disableContentSecurityPolicy } from "../utils"
 
 export const hydrateWranglerTemplate = (
   template: string,
-  data: Config,
-  middlewareConfig: ApiMiddlewareOptions,
+  config: Config,
+  middleware: ApiMiddlewareOptions,
 ) =>
   template
-    .replaceAll("{{DOMAIN_HOSTNAME}}", data.hostname)
-    .replaceAll("{{ACCOUNT_ID}}", data.cloudflareAccountId)
-    .replaceAll("{{LOCK_PAGE_SLUG}}", data.lockPageSlug)
-    .replaceAll("{{PATTERN}}", `*${data.hostname}/*`)
-    .replaceAll("{{ZONE_NAME}}", data.hostname)
+    .replaceAll("{{DOMAIN_HOSTNAME}}", config.hostname)
+    .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
+    .replaceAll("{{LOCK_PAGE_SLUG}}", config.lockPageSlug)
+    .replaceAll("{{PATTERN}}", `*${config.hostname}/*`)
+    .replaceAll("{{ZONE_NAME}}", config.hostname)
     .replaceAll(
       "{{CSP_ENFORCE}}",
-      middlewareConfig?.["csp-enforced"]
-        ? middlewareConfig["csp-enforced"].toString()
+      middleware?.["csp-enforced"]
+        ? middleware["csp-enforced"].toString()
         : disableContentSecurityPolicy,
     )
     .replaceAll(
       "{{CSP_DIRECTIVES}}",
-      middlewareConfig?.["csp-directives"]
-        ? jsesc(JSON.stringify(middlewareConfig["csp-directives"]), {
+      middleware?.["csp-directives"]
+        ? jsesc(JSON.stringify(middleware["csp-directives"]), {
             quotes: "double",
           })
         : "",
