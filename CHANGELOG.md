@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.2
+
+### Patch Changes
+
+- [`71947df1b7d994fe650bdf0955fa6fd195e2671c`](https://github.com/appwarden/build-cloudflare-action/commit/71947df1b7d994fe650bdf0955fa6fd195e2671c) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fetch middleware config from api
+
 ## 1.0.1
 
 ### Patch Changes
