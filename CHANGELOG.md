@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.4
+
+### Patch Changes
+
+- [`b0171be15d901ad0f6f9bbf7edecbf162d4af7be`](https://github.com/appwarden/build-cloudflare-action/commit/b0171be15d901ad0f6f9bbf7edecbf162d4af7be) Thanks [@stevefrench39](https://github.com/stevefrench39)! - debugging major tag targeting
+
 ## 1.0.3
 
 ### Patch Changes
