@@ -2,3 +2,9 @@ pre-push:
   commands:
     build:
       run: npm run build
+    check:
+      run: |
+        if [[ -n $(git status --porcelain) ]]; then
+          echo "dist files do not match the current commit. Please run 'npm run build' and commit the changes."
+          exit 1
+        fi
