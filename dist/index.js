@@ -23387,17 +23387,7 @@ var Debug = (debug2) => (msg) => {
 var debug;
 async function main() {
   debug = Debug(core.getInput("debug") === "true");
-  let hostname = core.getInput("hostname");
-  try {
-    new URL(`https://${hostname}`);
-  } catch (err) {
-    hostname = "";
-  }
-  if (!hostname) {
-    return core.setFailed(
-      "Please provide the hostname of your domain (e.g. app.example.com)"
-    );
-  }
+  debug(`Validating repository`);
   let repoName = "";
   try {
     const files2 = await (0, import_promises.readdir)("..");
@@ -23412,6 +23402,19 @@ async function main() {
       "Repository not found. Did you forget to include `actions/checkout` in your workflow?"
     );
   }
+  debug(`\u2705 Validating repository`);
+  debug(`Validating configuration`);
+  let hostname = core.getInput("hostname");
+  try {
+    new URL(`https://${hostname}`);
+  } catch (err) {
+    hostname = "";
+  }
+  if (!hostname) {
+    return core.setFailed(
+      "Please provide the hostname of your domain (e.g. app.example.com)"
+    );
+  }
   const maybeConfig = ConfigSchema.safeParse({
     hostname,
     debug: core.getInput("debug"),
@@ -23421,8 +23424,9 @@ async function main() {
     return core.setFailed(maybeConfig.error.errors.join("\n"));
   }
   const config = maybeConfig.data;
+  debug(`\u2705 Validating configuration`);
   const middlewareDir = ".appwarden/generated-middleware";
-  debug(`Creating directory: ${middlewareDir} and generating middleware files`);
+  debug(`Generating middleware files`);
   const middlewareOptions = await getMiddlewareOptions(
     hostname,
     core.getInput("appwarden-api-token")
@@ -23452,7 +23456,7 @@ async function main() {
  ${fileContent}`);
   }
   const files = await (0, import_promises.readdir)(middlewareDir);
-  debug(`\u2705 Generated ${files.toString().split(",").join(", ")}`);
+  debug(`\u2705 Generating middleware files`);
 }
 main().catch((err) => {
   debug(err);

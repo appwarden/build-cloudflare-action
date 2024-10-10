@@ -24,19 +24,8 @@ let debug: (msg: unknown) => void
 async function main() {
   debug = Debug(core.getInput("debug") === "true")
 
-  let hostname = core.getInput("hostname")
-  try {
-    new URL(`https://${hostname}`)
-  } catch (err) {
-    hostname = ""
-  }
-  if (!hostname) {
-    return core.setFailed(
-      "Please provide the hostname of your domain (e.g. app.example.com)",
-    )
-  }
+  debug(`Validating repository`)
 
-  // check if the repository is checked out
   let repoName = ""
   try {
     const files = await readdir("..")
@@ -53,6 +42,21 @@ async function main() {
     )
   }
 
+  debug(`✅ Validating repository`)
+  debug(`Validating configuration`)
+
+  let hostname = core.getInput("hostname")
+  try {
+    new URL(`https://${hostname}`)
+  } catch (err) {
+    hostname = ""
+  }
+  if (!hostname) {
+    return core.setFailed(
+      "Please provide the hostname of your domain (e.g. app.example.com)",
+    )
+  }
+
   // validate the configuration
   const maybeConfig = ConfigSchema.safeParse({
     hostname,
@@ -66,9 +70,11 @@ async function main() {
 
   const config = maybeConfig.data
 
+  debug(`✅ Validating configuration`)
+
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`Creating directory: ${middlewareDir} and generating middleware files`)
+  debug(`Generating middleware files`)
 
   const middlewareOptions = await getMiddlewareOptions(
     hostname,
@@ -106,7 +112,7 @@ async function main() {
   }
 
   const files = await readdir(middlewareDir)
-  debug(`✅ Generated ${files.toString().split(",").join(", ")}`)
+  debug(`✅ Generating middleware files`)
 }
 
 main().catch((err) => {
