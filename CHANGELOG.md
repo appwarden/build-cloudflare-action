@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.14
+
+### Patch Changes
+
+- [`ecfd41c9d8fedc49234e9eff9f3e84da1b16cd20`](https://github.com/appwarden/build-cloudflare-action/commit/ecfd41c9d8fedc49234e9eff9f3e84da1b16cd20) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fixed zod error
+
 ## 1.0.13
 
 ### Patch Changes
