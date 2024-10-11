@@ -1,6 +1,5 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
-import { SafeParseReturnType } from "zod"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
@@ -45,31 +44,16 @@ async function main() {
 
   debug(`✅ Validating repository`)
   debug(`Validating configuration`)
-  console.log("got here")
 
-  // validate the configuration
-  let maybeConfig: SafeParseReturnType<
-    {
-      hostname: string
-      debug: boolean
-      cloudflareAccountId: string
-    },
-    any
-  >
-  console.log("got here 2")
-  try {
-    maybeConfig = ConfigSchema.safeParse({
-      hostname: core.getInput("hostname"),
-      debug: core.getInput("debug"),
-      cloudflareAccountId: core.getInput("cloudflare-account-id"),
-    })
-    console.log("got here 3")
-  } catch (error) {
-    console.log(`error`, JSON.stringify(error, null, 2))
-    throw error
-  }
+  const maybeConfig = ConfigSchema.safeParse({
+    hostname: core.getInput("hostname"),
+    debug: core.getInput("debug"),
+    cloudflareAccountId: core.getInput("cloudflare-account-id"),
+  })
 
   if (!maybeConfig.success) {
+    debug(`Error parsing config: ${JSON.stringify(maybeConfig.error, null, 2)}`)
+
     return core.setFailed(maybeConfig.error.errors.join("\n"))
   }
 
