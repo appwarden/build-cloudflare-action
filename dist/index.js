@@ -6588,14 +6588,14 @@ var require_connect = __commonJS({
       const sessionCache = new SessionCache(maxCachedSessions == null ? 100 : maxCachedSessions);
       timeout = timeout == null ? 1e4 : timeout;
       allowH2 = allowH2 != null ? allowH2 : false;
-      return function connect({ hostname, host, protocol, port, servername, localAddress, httpSocket }, callback) {
+      return function connect({ hostname: hostname2, host, protocol, port, servername, localAddress, httpSocket }, callback) {
         let socket;
         if (protocol === "https:") {
           if (!tls) {
             tls = require("tls");
           }
           servername = servername || options.servername || util2.getServerName(host) || null;
-          const sessionKey = servername || hostname;
+          const sessionKey = servername || hostname2;
           const session = sessionCache.get(sessionKey) || null;
           assert(sessionKey);
           socket = tls.connect({
@@ -6610,7 +6610,7 @@ var require_connect = __commonJS({
             socket: httpSocket,
             // upgrade socket connection
             port: port || 443,
-            host: hostname
+            host: hostname2
           });
           socket.on("session", function(session2) {
             sessionCache.set(sessionKey, session2);
@@ -6623,7 +6623,7 @@ var require_connect = __commonJS({
             ...options,
             localAddress,
             port: port || 80,
-            host: hostname
+            host: hostname2
           });
         }
         if (options.keepAlive == null || options.keepAlive) {
@@ -8089,20 +8089,20 @@ var require_client = __commonJS({
     async function connect(client) {
       assert(!client[kConnecting]);
       assert(!client[kSocket]);
-      let { host, hostname, protocol, port } = client[kUrl];
-      if (hostname[0] === "[") {
-        const idx = hostname.indexOf("]");
+      let { host, hostname: hostname2, protocol, port } = client[kUrl];
+      if (hostname2[0] === "[") {
+        const idx = hostname2.indexOf("]");
         assert(idx !== -1);
-        const ip = hostname.substring(1, idx);
+        const ip = hostname2.substring(1, idx);
         assert(net.isIP(ip));
-        hostname = ip;
+        hostname2 = ip;
       }
       client[kConnecting] = true;
       if (channels.beforeConnect.hasSubscribers) {
         channels.beforeConnect.publish({
           connectParams: {
             host,
-            hostname,
+            hostname: hostname2,
             protocol,
             port,
             servername: client[kServerName],
@@ -8115,7 +8115,7 @@ var require_client = __commonJS({
         const socket = await new Promise((resolve, reject) => {
           client[kConnector]({
             host,
-            hostname,
+            hostname: hostname2,
             protocol,
             port,
             servername: client[kServerName],
@@ -8179,7 +8179,7 @@ var require_client = __commonJS({
           channels.connected.publish({
             connectParams: {
               host,
-              hostname,
+              hostname: hostname2,
               protocol,
               port,
               servername: client[kServerName],
@@ -8199,7 +8199,7 @@ var require_client = __commonJS({
           channels.connectError.publish({
             connectParams: {
               host,
-              hostname,
+              hostname: hostname2,
               protocol,
               port,
               servername: client[kServerName],
@@ -23255,7 +23255,23 @@ var OptionalBooleanSchema = z.union([z.string(), z.boolean(), z.undefined()]).tr
   throw new Error("Invalid value");
 });
 var ConfigSchema = z.object({
-  hostname: z.string(),
+  hostname: z.string().refine((val) => !!val, {
+    message: "Please provide the hostname of your domain (e.g. app.example.com)",
+    path: ["hostname"]
+  }).refine(
+    (val) => {
+      try {
+        new URL(`https://${val}`);
+        return true;
+      } catch (err) {
+        return false;
+      }
+    },
+    {
+      message: "hostname must be a valid domain name. (e.g. app.example.com)",
+      path: ["hostname"]
+    }
+  ),
   lockPageSlug: z.string(),
   cloudflareAccountId: z.string().refine((val) => val.length === 32, {
     message: "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
@@ -23274,9 +23290,9 @@ var ensureProtocol = (maybeFQDN) => {
   }
   return maybeFQDN;
 };
-var getMiddlewareOptions = (hostname, apiToken) => fetch(
+var getMiddlewareOptions = (hostname2, apiToken) => fetch(
   new URL(
-    `/v1/middleware-config?monitorHostname=${hostname}`,
+    `/v1/middleware-config?monitorHostname=${hostname2}`,
     // @ts-expect-error tsup config
     ensureProtocol("bot-gateway.appwarden.io")
   ),
@@ -23285,7 +23301,7 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
   const config = configs[0];
   if (!config) {
     throw new Error(
-      `Could not find Appwarden middleware configuration for hostname: ${hostname}`
+      `Could not find Appwarden middleware configuration for hostname: ${hostname2}`
     );
   }
   return {
@@ -23404,19 +23420,8 @@ async function main() {
   }
   debug(`\u2705 Validating repository`);
   debug(`Validating configuration`);
-  let hostname = core.getInput("hostname");
-  try {
-    new URL(`https://${hostname}`);
-  } catch (err) {
-    hostname = "";
-  }
-  if (!hostname) {
-    return core.setFailed(
-      "Please provide the hostname of your domain (e.g. app.example.com)"
-    );
-  }
   const maybeConfig = ConfigSchema.safeParse({
-    hostname,
+    hostname: core.getInput("hostname"),
     debug: core.getInput("debug"),
     cloudflareAccountId: core.getInput("cloudflare-account-id")
   });
