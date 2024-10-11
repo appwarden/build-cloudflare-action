@@ -17,7 +17,27 @@ const OptionalBooleanSchema = z
   })
 
 export const ConfigSchema = z.object({
-  hostname: z.string(),
+  hostname: z
+    .string()
+    .refine((val) => !!val, {
+      message:
+        "Please provide the hostname of your domain (e.g. app.example.com)",
+      path: ["hostname"],
+    })
+    .refine(
+      (val) => {
+        try {
+          new URL(`https://${val}`)
+          return true
+        } catch (err) {
+          return false
+        }
+      },
+      {
+        message: "hostname must be a valid domain name. (e.g. app.example.com)",
+        path: ["hostname"],
+      },
+    ),
   lockPageSlug: z.string(),
   cloudflareAccountId: z.string().refine((val) => val.length === 32, {
     message:

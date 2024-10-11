@@ -45,21 +45,9 @@ async function main() {
   debug(`✅ Validating repository`)
   debug(`Validating configuration`)
 
-  let hostname = core.getInput("hostname")
-  try {
-    new URL(`https://${hostname}`)
-  } catch (err) {
-    hostname = ""
-  }
-  if (!hostname) {
-    return core.setFailed(
-      "Please provide the hostname of your domain (e.g. app.example.com)",
-    )
-  }
-
   // validate the configuration
   const maybeConfig = ConfigSchema.safeParse({
-    hostname,
+    hostname: core.getInput("hostname"),
     debug: core.getInput("debug"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
   })
