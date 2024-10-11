@@ -23272,7 +23272,6 @@ var ConfigSchema = z.object({
       path: ["hostname"]
     }
   ),
-  lockPageSlug: z.string(),
   cloudflareAccountId: z.string().refine((val) => val.length === 32, {
     message: "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
     path: ["cloudflareAccountId"]
@@ -23354,7 +23353,10 @@ var packageJsonTemplate = `
 
 // src/templates/wrangler-toml.ts
 var import_jsesc = __toESM(require_jsesc());
-var hydrateWranglerTemplate = (template, config, middleware) => template.replaceAll("{{DOMAIN_HOSTNAME}}", config.hostname).replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId).replaceAll("{{LOCK_PAGE_SLUG}}", config.lockPageSlug).replaceAll("{{PATTERN}}", `*${config.hostname}/*`).replaceAll("{{ZONE_NAME}}", config.hostname).replaceAll(
+var hydrateWranglerTemplate = (template, config, middleware) => template.replaceAll("{{DOMAIN_HOSTNAME}}", config.hostname).replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId).replaceAll(
+  "{{LOCK_PAGE_SLUG}}",
+  middleware?.["lock-page-slug"] ?? "/maintenance"
+).replaceAll("{{PATTERN}}", `*${config.hostname}/*`).replaceAll("{{ZONE_NAME}}", config.hostname).replaceAll(
   "{{CSP_ENFORCE}}",
   middleware?.["csp-enforced"] ? middleware["csp-enforced"].toString() : disableContentSecurityPolicy
 ).replaceAll(
@@ -23426,8 +23428,7 @@ async function main() {
     cloudflareAccountId: core.getInput("cloudflare-account-id")
   });
   if (!maybeConfig.success) {
-    debug(`Error parsing config: ${JSON.stringify(maybeConfig.error, null, 2)}`);
-    return core.setFailed(maybeConfig.error.errors.join("\n"));
+    return core.setFailed(JSON.stringify(maybeConfig.error.format(), null, 2));
   }
   const config = maybeConfig.data;
   debug(`\u2705 Validating configuration`);

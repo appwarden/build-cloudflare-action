@@ -52,9 +52,7 @@ async function main() {
   })
 
   if (!maybeConfig.success) {
-    debug(`Error parsing config: ${JSON.stringify(maybeConfig.error, null, 2)}`)
-
-    return core.setFailed(maybeConfig.error.errors.join("\n"))
+    return core.setFailed(JSON.stringify(maybeConfig.error.format(), null, 2))
   }
 
   const config = maybeConfig.data

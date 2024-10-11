@@ -38,7 +38,6 @@ export const ConfigSchema = z.object({
         path: ["hostname"],
       },
     ),
-  lockPageSlug: z.string(),
   cloudflareAccountId: z.string().refine((val) => val.length === 32, {
     message:
       "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
