@@ -23420,15 +23420,18 @@ async function main() {
   }
   debug(`\u2705 Validating repository`);
   debug(`Validating configuration`);
+  console.log("got here");
   let maybeConfig;
+  console.log("got here 2");
   try {
     maybeConfig = ConfigSchema.safeParse({
       hostname: core.getInput("hostname"),
       debug: core.getInput("debug"),
       cloudflareAccountId: core.getInput("cloudflare-account-id")
     });
+    console.log("got here 3");
   } catch (error2) {
-    console.log(`error`, error2);
+    console.log(`error`, JSON.stringify(error2, null, 2));
     throw error2;
   }
   if (!maybeConfig.success) {
