@@ -1,5 +1,13 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.11
+
+### Patch Changes
+
+- [`e0fbb3173042155fc9e9da081ebeffe1f1f2f3ce`](https://github.com/appwarden/build-cloudflare-action/commit/e0fbb3173042155fc9e9da081ebeffe1f1f2f3ce) Thanks [@stevefrench39](https://github.com/stevefrench39)! - continue debugging
+
+- [`14a9adaa19ea1c9e7d219c52c8a233d12e8ec397`](https://github.com/appwarden/build-cloudflare-action/commit/14a9adaa19ea1c9e7d219c52c8a233d12e8ec397) Thanks [@stevefrench39](https://github.com/stevefrench39)! - debugging weird error
+
 ## 1.0.10
 
 ### Patch Changes
