@@ -23420,21 +23420,13 @@ async function main() {
   }
   debug(`\u2705 Validating repository`);
   debug(`Validating configuration`);
-  console.log("got here");
-  let maybeConfig;
-  console.log("got here 2");
-  try {
-    maybeConfig = ConfigSchema.safeParse({
-      hostname: core.getInput("hostname"),
-      debug: core.getInput("debug"),
-      cloudflareAccountId: core.getInput("cloudflare-account-id")
-    });
-    console.log("got here 3");
-  } catch (error2) {
-    console.log(`error`, JSON.stringify(error2, null, 2));
-    throw error2;
-  }
+  const maybeConfig = ConfigSchema.safeParse({
+    hostname: core.getInput("hostname"),
+    debug: core.getInput("debug"),
+    cloudflareAccountId: core.getInput("cloudflare-account-id")
+  });
   if (!maybeConfig.success) {
+    debug(`Error parsing config: ${JSON.stringify(maybeConfig.error, null, 2)}`);
     return core.setFailed(maybeConfig.error.errors.join("\n"));
   }
   const config = maybeConfig.data;
