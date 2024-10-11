@@ -1,3 +1,5 @@
+import { ApiMiddlewareOptions } from "./types"
+
 const protocolRegex = /^https?:\/\//i
 
 export const disableContentSecurityPolicy = "disable-content-security-policy"

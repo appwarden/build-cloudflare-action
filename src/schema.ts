@@ -26,13 +26,12 @@ export const ConfigSchema = z.object({
     })
     .refine(
       (val) => {
-        // try {
-        //   new URL(`https://${val}`)
-        //   return true
-        // } catch (err) {
-        //   return false
-        // }
-        return true
+        try {
+          new URL(`https://${val}`)
+          return true
+        } catch (err) {
+          return false
+        }
       },
       {
         message: "hostname must be a valid domain name. (e.g. app.example.com)",

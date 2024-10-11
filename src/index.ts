@@ -1,5 +1,6 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
+import { SafeParseReturnType } from "zod"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
@@ -46,11 +47,24 @@ async function main() {
   debug(`Validating configuration`)
 
   // validate the configuration
-  const maybeConfig = ConfigSchema.safeParse({
-    hostname: core.getInput("hostname"),
-    debug: core.getInput("debug"),
-    cloudflareAccountId: core.getInput("cloudflare-account-id"),
-  })
+  let maybeConfig: SafeParseReturnType<
+    {
+      hostname: string
+      debug: boolean
+      cloudflareAccountId: string
+    },
+    any
+  >
+  try {
+    maybeConfig = ConfigSchema.safeParse({
+      hostname: core.getInput("hostname"),
+      debug: core.getInput("debug"),
+      cloudflareAccountId: core.getInput("cloudflare-account-id"),
+    })
+  } catch (error) {
+    console.log(`error`, error)
+    throw error
+  }
 
   if (!maybeConfig.success) {
     return core.setFailed(maybeConfig.error.errors.join("\n"))
@@ -65,7 +79,7 @@ async function main() {
   debug(`Generating middleware files`)
 
   const middlewareOptions = await getMiddlewareOptions(
-    hostname,
+    config.hostname,
     core.getInput("appwarden-api-token"),
   )
 
@@ -76,7 +90,7 @@ async function main() {
           null,
           2,
         )}`
-      : `No middleware options found for ${hostname}`,
+      : `No middleware options found for ${config.hostname}`,
   )
 
   // write the app files
