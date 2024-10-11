@@ -23260,12 +23260,7 @@ var ConfigSchema = z.object({
     path: ["hostname"]
   }).refine(
     (val) => {
-      try {
-        new URL(`https://${val}`);
-        return true;
-      } catch (err) {
-        return false;
-      }
+      return true;
     },
     {
       message: "hostname must be a valid domain name. (e.g. app.example.com)",
