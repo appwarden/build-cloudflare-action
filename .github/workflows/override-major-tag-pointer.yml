@@ -1,0 +1,31 @@
+name: Override major tag pointer
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "version tag"
+        required: true
+
+concurrency: ${{ github.workflow }}-${{ github.ref }}
+
+env:
+  MAJOR_VERSION: v1
+
+jobs:
+  release:
+    name: Override major tag pointer
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: write
+      pull-requests: write
+      issues: read
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Tag new major version target
+        run: git tag -f ${{ env.MAJOR_VERSION }} ${{ github.event.inputs.version }}
