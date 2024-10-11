@@ -10,7 +10,10 @@ export const hydrateWranglerTemplate = (
   template
     .replaceAll("{{DOMAIN_HOSTNAME}}", config.hostname)
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
-    .replaceAll("{{LOCK_PAGE_SLUG}}", config.lockPageSlug)
+    .replaceAll(
+      "{{LOCK_PAGE_SLUG}}",
+      middleware?.["lock-page-slug"] ?? "/maintenance",
+    )
     .replaceAll("{{PATTERN}}", `*${config.hostname}/*`)
     .replaceAll("{{ZONE_NAME}}", config.hostname)
     .replaceAll(
