@@ -23298,15 +23298,12 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
   { headers: { "appwarden-api-token": apiToken } }
 ).then((res) => res.json()).then((configs) => {
   const config = configs[0];
-  if (!config) {
-    throw new Error(
-      `Could not find Appwarden middleware configuration for hostname: ${hostname}`
-    );
+  if (config) {
+    return {
+      ...config.options,
+      "csp-directives": typeof config.options["csp-directives"] === "string" ? JSON.parse(config.options["csp-directives"]) : config.options["csp-directives"]
+    };
   }
-  return {
-    ...config.options,
-    "csp-directives": typeof config.options["csp-directives"] === "string" ? JSON.parse(config.options["csp-directives"]) : config.options["csp-directives"]
-  };
 });
 
 // src/templates/app.ts
@@ -23408,8 +23405,8 @@ async function main() {
   debug(`Validating repository`);
   let repoName = "";
   try {
-    const files2 = await (0, import_promises.readdir)("..");
-    repoName = files2[0];
+    const files = await (0, import_promises.readdir)("..");
+    repoName = files[0];
     if (!repoName) {
       return core.setFailed(
         "Repository not found. Did you forget to include `actions/checkout` in your workflow?"
@@ -23438,6 +23435,11 @@ async function main() {
     config.hostname,
     core.getInput("appwarden-api-token")
   );
+  if (!middlewareOptions) {
+    return core.setFailed(
+      `Could not find Appwarden middleware configuration for hostname: ${config.hostname}`
+    );
+  }
   debug(
     middlewareOptions ? `Found middleware options: ${JSON.stringify(
       middlewareOptions,
@@ -23462,11 +23464,9 @@ async function main() {
     debug(`Generated ${fileName}:
  ${fileContent}`);
   }
-  const files = await (0, import_promises.readdir)(middlewareDir);
   debug(`\u2705 Generating middleware files`);
 }
 main().catch((err) => {
-  debug(err);
   core.error(err);
   core.setFailed(err.message);
 });

@@ -67,6 +67,11 @@ async function main() {
     config.hostname,
     core.getInput("appwarden-api-token"),
   )
+  if (!middlewareOptions) {
+    return core.setFailed(
+      `Could not find Appwarden middleware configuration for hostname: ${config.hostname}`,
+    )
+  }
 
   debug(
     middlewareOptions
@@ -98,12 +103,10 @@ async function main() {
     debug(`Generated ${fileName}:\n ${fileContent}`)
   }
 
-  const files = await readdir(middlewareDir)
   debug(`✅ Generating middleware files`)
 }
 
 main().catch((err) => {
-  debug(err)
   core.error(err)
   core.setFailed(err.message)
 })
