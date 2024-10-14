@@ -25,7 +25,7 @@ export const ignoreProtocol = (maybeFQDN: string) => {
 export const getMiddlewareOptions = (
   hostname: string,
   apiToken: string,
-): Promise<ApiMiddlewareOptions> =>
+): Promise<ApiMiddlewareOptions | undefined> =>
   fetch(
     new URL(
       `/v1/middleware-config?monitorHostname=${hostname}`,
@@ -37,17 +37,13 @@ export const getMiddlewareOptions = (
     .then((res) => res.json())
     .then((configs: any) => {
       const config = configs[0] as { options: ApiMiddlewareOptions }
-      if (!config) {
-        throw new Error(
-          `Could not find Appwarden middleware configuration for hostname: ${hostname}`,
-        )
-      }
-
-      return {
-        ...config.options,
-        "csp-directives":
-          typeof config.options["csp-directives"] === "string"
-            ? JSON.parse(config.options["csp-directives"])
-            : config.options["csp-directives"],
+      if (config) {
+        return {
+          ...config.options,
+          "csp-directives":
+            typeof config.options["csp-directives"] === "string"
+              ? JSON.parse(config.options["csp-directives"])
+              : config.options["csp-directives"],
+        }
       }
     })
