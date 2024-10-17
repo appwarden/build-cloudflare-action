@@ -68,7 +68,7 @@ async function main() {
   try {
     middlewareOptions = await getMiddlewareOptions(
       config.hostname,
-      core.getInput("appwarden-api-token"),
+      core.getInput("appwarden-token"),
     )
   } catch (error) {
     if (error instanceof Error) {
