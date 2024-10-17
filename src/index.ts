@@ -62,7 +62,7 @@ async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`Generating middleware files`)
+  debug(`Fetching middleware configuration`)
 
   let middlewareOptions: ApiMiddlewareOptions | undefined
   try {
@@ -87,14 +87,14 @@ async function main() {
   }
 
   debug(
-    middlewareOptions
-      ? `Found middleware options: ${JSON.stringify(
-          middlewareOptions,
-          null,
-          2,
-        )}`
-      : `No middleware options found for ${config.hostname}`,
+    `✅ Fetching middleware configuration \n ${JSON.stringify(
+      middlewareOptions,
+      null,
+      2,
+    )}`,
   )
+
+  debug(`Generating middleware files`)
 
   // write the app files
   await mkdir(middlewareDir, { recursive: true })
