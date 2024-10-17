@@ -8,6 +8,7 @@ import {
   packageJsonTemplate,
   wranglerFileTemplate,
 } from "./templates"
+import { ApiMiddlewareOptions } from "./types"
 import { getMiddlewareOptions } from "./utils"
 
 // @ts-expect-error tsup config
@@ -63,10 +64,22 @@ async function main() {
 
   debug(`Generating middleware files`)
 
-  const middlewareOptions = await getMiddlewareOptions(
-    config.hostname,
-    core.getInput("appwarden-api-token"),
-  )
+  let middlewareOptions: ApiMiddlewareOptions | undefined
+  try {
+    middlewareOptions = await getMiddlewareOptions(
+      config.hostname,
+      core.getInput("appwarden-api-token"),
+    )
+  } catch (error) {
+    if (error instanceof Error) {
+      if (error.message === "BAD_AUTH") {
+        return core.setFailed(`Invalid Appwarden API token`)
+      }
+    }
+
+    throw error
+  }
+
   if (!middlewareOptions) {
     return core.setFailed(
       `Could not find Appwarden middleware configuration for hostname: ${config.hostname}`,
