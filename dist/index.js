@@ -23435,7 +23435,7 @@ async function main() {
   const config = maybeConfig.data;
   debug(`\u2705 Validating configuration`);
   const middlewareDir = ".appwarden/generated-middleware";
-  debug(`Generating middleware files`);
+  debug(`Fetching middleware configuration`);
   let middlewareOptions;
   try {
     middlewareOptions = await getMiddlewareOptions(
@@ -23456,12 +23456,14 @@ async function main() {
     );
   }
   debug(
-    middlewareOptions ? `Found middleware options: ${JSON.stringify(
+    `\u2705 Fetching middleware configuration 
+ ${JSON.stringify(
       middlewareOptions,
       null,
       2
-    )}` : `No middleware options found for ${config.hostname}`
+    )}`
   );
+  debug(`Generating middleware files`);
   await (0, import_promises.mkdir)(middlewareDir, { recursive: true });
   const projectFiles = [
     [
