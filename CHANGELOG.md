@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.19
+
+### Patch Changes
+
+- [`bfdd410ef36af3e4f32dd0be7480cf830630e525`](https://github.com/appwarden/build-cloudflare-action/commit/bfdd410ef36af3e4f32dd0be7480cf830630e525) Thanks [@stevefrench39](https://github.com/stevefrench39)! - revert last change
+
 ## 1.0.18
 
 ### Patch Changes
