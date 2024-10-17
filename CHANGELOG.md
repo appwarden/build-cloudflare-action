@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.16
+
+### Patch Changes
+
+- [`7ec7af1127d7ebddc44bb5b6b28e3b6ee3a3eac6`](https://github.com/appwarden/build-cloudflare-action/commit/7ec7af1127d7ebddc44bb5b6b28e3b6ee3a3eac6) Thanks [@stevefrench39](https://github.com/stevefrench39)! - update api token header name
+
 ## 1.0.15
 
 ### Patch Changes
