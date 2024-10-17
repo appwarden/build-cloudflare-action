@@ -23295,8 +23295,13 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
     // @ts-expect-error tsup config
     ensureProtocol("bot-gateway.appwarden.io")
   ),
-  { headers: { "appwarden-api-token": apiToken } }
-).then((res) => res.json()).then((configs) => {
+  { headers: { "appwarden-token": apiToken } }
+).then((res) => {
+  if ([403, 401].includes(res.status)) {
+    throw new Error("BAD_AUTH");
+  }
+  return res;
+}).then((res) => res.json()).then((configs) => {
   const config = configs[0];
   if (config) {
     return {
@@ -23431,10 +23436,20 @@ async function main() {
   debug(`\u2705 Validating configuration`);
   const middlewareDir = ".appwarden/generated-middleware";
   debug(`Generating middleware files`);
-  const middlewareOptions = await getMiddlewareOptions(
-    config.hostname,
-    core.getInput("appwarden-api-token")
-  );
+  let middlewareOptions;
+  try {
+    middlewareOptions = await getMiddlewareOptions(
+      config.hostname,
+      core.getInput("appwarden-api-token")
+    );
+  } catch (error2) {
+    if (error2 instanceof Error) {
+      if (error2.message === "BAD_AUTH") {
+        return core.setFailed(`Invalid Appwarden API token`);
+      }
+    }
+    throw error2;
+  }
   if (!middlewareOptions) {
     return core.setFailed(
       `Could not find Appwarden middleware configuration for hostname: ${config.hostname}`

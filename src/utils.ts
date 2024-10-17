@@ -32,8 +32,15 @@ export const getMiddlewareOptions = (
       // @ts-expect-error tsup config
       ensureProtocol(API_HOSTNAME),
     ),
-    { headers: { "appwarden-api-token": apiToken } },
+    { headers: { "appwarden-token": apiToken } },
   )
+    .then((res) => {
+      if ([403, 401].includes(res.status)) {
+        throw new Error("BAD_AUTH")
+      }
+
+      return res
+    })
     .then((res) => res.json())
     .then((configs: any) => {
       const config = configs[0] as { options: ApiMiddlewareOptions }
