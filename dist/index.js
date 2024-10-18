@@ -23301,8 +23301,8 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
     throw new Error("BAD_AUTH");
   }
   return res;
-}).then((res) => res.json()).then((configs) => {
-  const config = configs[0];
+}).then((res) => res.json()).then((result) => {
+  const config = result.content[0];
   if (config) {
     return {
       ...config.options,
