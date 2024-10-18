@@ -23302,7 +23302,6 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
   }
   return res;
 }).then((res) => res.json()).then((configs) => {
-  console.log(`configs`, configs);
   const config = configs[0];
   if (config) {
     return {
