@@ -23325,7 +23325,7 @@ export default {
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     middleware: {
       before:
-        context.env.CSP_ENFORCE === ${disableContentSecurityPolicy}
+        context.env.CSP_ENFORCE === "${disableContentSecurityPolicy}"
           ? []
           : [
               useContentSecurityPolicy({
