@@ -43,8 +43,6 @@ export const getMiddlewareOptions = (
     })
     .then((res) => res.json())
     .then((configs: any) => {
-      console.log(`configs`, configs)
-
       const config = configs[0] as { options: ApiMiddlewareOptions }
       if (config) {
         return {
