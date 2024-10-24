@@ -1,4 +1,5 @@
 import jsesc from "jsesc"
+import { getRootDomain } from "../parse-domain"
 import { ApiMiddlewareOptions, Config } from "../types"
 import { disableContentSecurityPolicy } from "../utils"
 
@@ -8,14 +9,13 @@ export const hydrateWranglerTemplate = (
   middleware: ApiMiddlewareOptions,
 ) =>
   template
-    .replaceAll("{{DOMAIN_HOSTNAME}}", config.hostname)
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
     .replaceAll(
       "{{LOCK_PAGE_SLUG}}",
       middleware?.["lock-page-slug"] ?? "/maintenance",
     )
     .replaceAll("{{PATTERN}}", `*${config.hostname}/*`)
-    .replaceAll("{{ZONE_NAME}}", config.hostname)
+    .replaceAll("{{ZONE_NAME}}", getRootDomain(config.hostname))
     .replaceAll(
       "{{CSP_ENFORCE}}",
       middleware?.["csp-enforced"]
