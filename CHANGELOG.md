@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.0.24
+
+### Patch Changes
+
+- [`2b8637f57244004ab1ca3fb73abf5bc7b4dfd59d`](https://github.com/appwarden/build-cloudflare-action/commit/2b8637f57244004ab1ca3fb73abf5bc7b4dfd59d) Thanks [@stevefrench39](https://github.com/stevefrench39)! - improve subdomain parsing
+
 ## 1.0.23
 
 ### Patch Changes
