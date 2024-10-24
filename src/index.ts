@@ -46,7 +46,7 @@ async function main() {
   debug(`✅ Validating repository`)
   debug(`Validating configuration`)
 
-  const maybeConfig = ConfigSchema.safeParse({
+  const maybeConfig = await ConfigSchema.safeParseAsync({
     hostname: core.getInput("hostname"),
     debug: core.getInput("debug"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
