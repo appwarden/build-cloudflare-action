@@ -25,7 +25,7 @@ export interface Middleware {
   options?: {
     debug: boolean | string
     "lock-page-slug": string
-    "csp-enforced": boolean | string
+    "csp-mode"?: "disabled" | "report-only" | "enforced"
     "csp-directives": Record<string, string> | string
   }
 }
@@ -35,6 +35,6 @@ export type Config = z.infer<typeof ConfigSchema>
 export type ApiMiddlewareOptions = {
   debug?: boolean
   "lock-page-slug"?: string
-  "csp-enforced"?: boolean | undefined
+  "csp-mode"?: "disabled" | "report-only" | "enforced"
   "csp-directives"?: Record<string, string>
 }

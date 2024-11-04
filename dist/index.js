@@ -23758,60 +23758,25 @@ var ConfigSchema = z.object({
   debug: OptionalBooleanSchema.default(false)
 });
 
-// src/utils.ts
-var protocolRegex = /^https?:\/\//i;
-var disableContentSecurityPolicy = "disable-content-security-policy";
-var ensureProtocol = (maybeFQDN) => {
-  const hasProtocol = protocolRegex.test(maybeFQDN);
-  if (!hasProtocol) {
-    return `https://${maybeFQDN}`;
-  }
-  return maybeFQDN;
-};
-var getMiddlewareOptions = (hostname, apiToken) => fetch(
-  new URL(
-    `/v1/middleware-config?monitorHostname=${hostname}`,
-    // @ts-expect-error tsup config
-    ensureProtocol("bot-gateway.appwarden.io")
-  ),
-  { headers: { "appwarden-token": apiToken } }
-).then((res) => {
-  if ([403, 401].includes(res.status)) {
-    throw new Error("BAD_AUTH");
-  }
-  return res;
-}).then((res) => res.json()).then((result) => {
-  const config = result.content[0];
-  if (config) {
-    return {
-      ...config.options,
-      "csp-directives": typeof config.options["csp-directives"] === "string" ? JSON.parse(config.options["csp-directives"]) : config.options["csp-directives"]
-    };
-  }
-});
-
 // src/templates/app.ts
 var appTemplate = `
 import {
   useContentSecurityPolicy,
-  withAppwardenOnCloudflare,
+  withAppwarden,
 } from "@appwarden/middleware/cloudflare"
 
 export default {
-  fetch: withAppwardenOnCloudflare((context) => ({
+  fetch: withAppwarden((context) => ({
     debug: context.env.DEBUG,
     lockPageSlug: context.env.LOCK_PAGE_SLUG,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     middleware: {
-      before:
-        context.env.CSP_ENFORCE === "${disableContentSecurityPolicy}"
-          ? []
-          : [
-              useContentSecurityPolicy({
-                enforce: context.env.CSP_ENFORCE,
-                directives: context.env.CSP_DIRECTIVES,
-              }),
-            ],
+      before: [
+        useContentSecurityPolicy({
+          mode: context.env.CSP_MODE,
+          directives: context.env.CSP_DIRECTIVES,
+        }),
+      ]
     },
   })),
 }
@@ -23837,14 +23802,12 @@ var import_jsesc = __toESM(require_jsesc());
 var hydrateWranglerTemplate = (template, config, middleware) => template.replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId).replaceAll(
   "{{LOCK_PAGE_SLUG}}",
   middleware?.["lock-page-slug"] ?? "/maintenance"
-).replaceAll("{{PATTERN}}", `*${config.hostname}/*`).replaceAll("{{ZONE_NAME}}", getRootDomain(config.hostname)).replaceAll(
-  "{{CSP_ENFORCE}}",
-  middleware?.["csp-enforced"] ? middleware["csp-enforced"].toString() : disableContentSecurityPolicy
-).replaceAll(
+).replaceAll("{{PATTERN}}", `*${config.hostname}/*`).replaceAll("{{ZONE_NAME}}", getRootDomain(config.hostname)).replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled").replaceAll(
   "{{CSP_DIRECTIVES}}",
-  middleware?.["csp-directives"] ? (0, import_jsesc.default)(JSON.stringify(middleware["csp-directives"]), {
-    quotes: "double"
-  }) : ""
+  middleware?.["csp-directives"] ? (0, import_jsesc.default)(
+    typeof middleware?.["csp-directives"] === "object" ? JSON.stringify(middleware["csp-directives"]) : middleware["csp-directives"],
+    { quotes: "double" }
+  ) : ""
 );
 var wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
@@ -23862,7 +23825,7 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.staging.vars]
-CSP_ENFORCE = {{CSP_ENFORCE}}
+CSP_MODE = {{CSP_MODE}}
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 
@@ -23871,13 +23834,39 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.production.vars]
-CSP_ENFORCE = {{CSP_ENFORCE}}
+CSP_MODE = {{CSP_MODE}}
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
 
+// src/utils.ts
+var protocolRegex = /^https?:\/\//i;
+var ensureProtocol = (maybeFQDN) => {
+  const hasProtocol = protocolRegex.test(maybeFQDN);
+  if (!hasProtocol) {
+    return `https://${maybeFQDN}`;
+  }
+  return maybeFQDN;
+};
+var getMiddlewareOptions = (hostname, apiToken) => fetch(
+  new URL(
+    `/v1/middleware-config?monitorHostname=${hostname}`,
+    // @ts-expect-error tsup config
+    ensureProtocol("bot-gateway.appwarden.io")
+  ),
+  { headers: { "appwarden-token": apiToken } }
+).then((res) => {
+  if ([403, 401].includes(res.status)) {
+    throw new Error("BAD_AUTH");
+  }
+  return res;
+}).then((res) => res.json()).then((result) => {
+  const config = result.content[0];
+  return config ? config.options : void 0;
+});
+
 // src/index.ts
-var middlewareVersion = "1.0.19";
+var middlewareVersion = "1.1.0";
 var Debug = (debug2) => (msg) => {
   if (debug2) {
     console.log(msg);
