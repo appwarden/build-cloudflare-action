@@ -1,7 +1,6 @@
 import jsesc from "jsesc"
 import { getRootDomain } from "../parse-domain"
 import { ApiMiddlewareOptions, Config } from "../types"
-import { disableContentSecurityPolicy } from "../utils"
 
 export const hydrateWranglerTemplate = (
   template: string,
@@ -16,18 +15,16 @@ export const hydrateWranglerTemplate = (
     )
     .replaceAll("{{PATTERN}}", `*${config.hostname}/*`)
     .replaceAll("{{ZONE_NAME}}", getRootDomain(config.hostname))
-    .replaceAll(
-      "{{CSP_ENFORCE}}",
-      middleware?.["csp-enforced"]
-        ? middleware["csp-enforced"].toString()
-        : disableContentSecurityPolicy,
-    )
+    .replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled")
     .replaceAll(
       "{{CSP_DIRECTIVES}}",
       middleware?.["csp-directives"]
-        ? jsesc(JSON.stringify(middleware["csp-directives"]), {
-            quotes: "double",
-          })
+        ? jsesc(
+            typeof middleware?.["csp-directives"] === "object"
+              ? JSON.stringify(middleware["csp-directives"])
+              : middleware["csp-directives"],
+            { quotes: "double" },
+          )
         : "",
     )
 
@@ -47,7 +44,7 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.staging.vars]
-CSP_ENFORCE = {{CSP_ENFORCE}}
+CSP_MODE = {{CSP_MODE}}
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 
@@ -56,7 +53,7 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.production.vars]
-CSP_ENFORCE = {{CSP_ENFORCE}}
+CSP_MODE = {{CSP_MODE}}
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `

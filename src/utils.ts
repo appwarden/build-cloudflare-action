@@ -2,8 +2,6 @@ import { ApiMiddlewareOptions } from "./types"
 
 const protocolRegex = /^https?:\/\//i
 
-export const disableContentSecurityPolicy = "disable-content-security-policy"
-
 export const ensureProtocol = (maybeFQDN: string) => {
   const hasProtocol = protocolRegex.test(maybeFQDN)
   if (!hasProtocol) {
@@ -44,13 +42,5 @@ export const getMiddlewareOptions = (
     .then((res) => res.json())
     .then((result: any) => {
       const config = result.content[0] as { options: ApiMiddlewareOptions }
-      if (config) {
-        return {
-          ...config.options,
-          "csp-directives":
-            typeof config.options["csp-directives"] === "string"
-              ? JSON.parse(config.options["csp-directives"])
-              : config.options["csp-directives"],
-        }
-      }
+      return config ? config.options : undefined
     })

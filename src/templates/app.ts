@@ -1,26 +1,21 @@
-import { disableContentSecurityPolicy } from "../utils"
-
 export const appTemplate = `
 import {
   useContentSecurityPolicy,
-  withAppwardenOnCloudflare,
+  withAppwarden,
 } from "@appwarden/middleware/cloudflare"
 
 export default {
-  fetch: withAppwardenOnCloudflare((context) => ({
+  fetch: withAppwarden((context) => ({
     debug: context.env.DEBUG,
     lockPageSlug: context.env.LOCK_PAGE_SLUG,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     middleware: {
-      before:
-        context.env.CSP_ENFORCE === "${disableContentSecurityPolicy}"
-          ? []
-          : [
-              useContentSecurityPolicy({
-                enforce: context.env.CSP_ENFORCE,
-                directives: context.env.CSP_DIRECTIVES,
-              }),
-            ],
+      before: [
+        useContentSecurityPolicy({
+          mode: context.env.CSP_MODE,
+          directives: context.env.CSP_DIRECTIVES,
+        }),
+      ]
     },
   })),
 }
