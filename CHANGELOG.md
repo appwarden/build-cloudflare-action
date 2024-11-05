@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.1
+
+### Patch Changes
+
+- [`303bfb06419b9e35a54060c7f330de3405fe9444`](https://github.com/appwarden/build-cloudflare-action/commit/303bfb06419b9e35a54060c7f330de3405fe9444) Thanks [@stevefrench39](https://github.com/stevefrench39)! - update CSP_MODE to accept strings
+
 ## 1.1.0
 
 ### Minor Changes
