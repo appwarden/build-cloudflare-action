@@ -23825,7 +23825,7 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.staging.vars]
-CSP_MODE = {{CSP_MODE}}
+CSP_MODE = "{{CSP_MODE}}"
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 
@@ -23834,7 +23834,7 @@ pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
 
 [env.production.vars]
-CSP_MODE = {{CSP_MODE}}
+CSP_MODE = "{{CSP_MODE}}"
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
