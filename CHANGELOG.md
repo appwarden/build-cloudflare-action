@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.3
+
+### Patch Changes
+
+- [`4202221b8b077614dd30d14be70d3f7b296c8095`](https://github.com/appwarden/build-cloudflare-action/commit/4202221b8b077614dd30d14be70d3f7b296c8095) Thanks [@stevefrench39](https://github.com/stevefrench39)! - bumping to latest middleware version
+
 ## 1.1.2
 
 ### Patch Changes
