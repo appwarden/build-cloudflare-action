@@ -23866,7 +23866,7 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
 });
 
 // src/index.ts
-var middlewareVersion = "1.1.1";
+var middlewareVersion = "1.1.3";
 var Debug = (debug2) => (msg) => {
   if (debug2) {
     console.log(msg);
