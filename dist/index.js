@@ -23820,6 +23820,10 @@ send_metrics = false
 
 main = "app.mjs"
 
+[observability.logs]
+enabled = true
+head_sampling_rate = 1
+
 [env.staging.route]
 pattern = "{{PATTERN}}"
 zone_name = "{{ZONE_NAME}}"
