@@ -11,7 +11,7 @@ This workflow builds and deploys the latest version of Appwarden to your domain.
 1. Publishing a new release
 2. Pushing to `main` (or another branch)
 
-> Follow the emoji numbers to fill in the required content.
+> Follow the emoji numbered instructions to fill in the required content.
 
 ```
 name: 🤖 Deploy Appwarden
