@@ -50,6 +50,7 @@ export async function main() {
     debug: core.getInput("debug"),
     hostname: core.getInput("hostname"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
+    appwardenApiToken: core.getInput("appwarden-api-token"),
   })
 
   if (!maybeConfig.success) {
@@ -68,7 +69,7 @@ export async function main() {
   try {
     middlewareOptions = await getMiddlewareOptions(
       config.hostname,
-      core.getInput("appwarden-api-token"),
+      config.appwardenApiToken,
     )
   } catch (error) {
     if (error instanceof Error) {
