@@ -8,6 +8,10 @@ var __hasOwnProp = Object.prototype.hasOwnProperty;
 var __commonJS = (cb, mod) => function __require() {
   return mod || (0, cb[__getOwnPropNames(cb)[0]])((mod = { exports: {} }).exports, mod), mod.exports;
 };
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 var __copyProps = (to, from, except, desc) => {
   if (from && typeof from === "object" || typeof from === "function") {
     for (let key of __getOwnPropNames(from))
@@ -24,6 +28,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   isNodeMode || !mod || !mod.__esModule ? __defProp(target, "default", { value: mod, enumerable: true }) : target,
   mod
 ));
+var __toCommonJS = (mod) => __copyProps(__defProp({}, "__esModule", { value: true }), mod);
 
 // node_modules/@actions/core/lib/utils.js
 var require_utils = __commonJS({
@@ -20094,6 +20099,11 @@ var require_jsesc = __commonJS({
 });
 
 // src/index.ts
+var index_exports = {};
+__export(index_exports, {
+  main: () => main
+});
+module.exports = __toCommonJS(index_exports);
 var core = __toESM(require_core());
 var import_promises = require("fs/promises");
 
@@ -24842,7 +24852,9 @@ async function main() {
         error2.message === "BAD_AUTH" ? "Invalid Appwarden API token" : error2.message
       );
     }
-    throw error2;
+    return core.setFailed(
+      error2 instanceof Error ? error2.message : String(error2)
+    );
   }
   if (!middlewareOptions) {
     return core.setFailed(
@@ -24880,6 +24892,10 @@ async function main() {
 main().catch((err) => {
   core.error(err);
   core.setFailed(err.message);
+});
+// Annotate the CommonJS export names for ESM import in node:
+0 && (module.exports = {
+  main
 });
 /*! Bundled license information:
 
