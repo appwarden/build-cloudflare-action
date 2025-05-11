@@ -27,7 +27,7 @@ export default defineConfig(async () => {
     noExternal: [/(.*)/],
     define: {
       MIDDLEWARE_VERSION: v(middlewareVersion),
-      API_HOSTNAME: v("bot-gateway.appwarden.io"),
+      API_HOSTNAME: v("https://bot-gateway.appwarden.io"),
     },
   }
 })

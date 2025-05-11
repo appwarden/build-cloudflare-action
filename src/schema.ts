@@ -27,5 +27,6 @@ export const ConfigSchema = z.object({
       "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
     path: ["cloudflareAccountId"],
   }),
+  appwardenApiToken: z.string(),
   debug: OptionalBooleanSchema.default(false),
 })

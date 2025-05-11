@@ -1,41 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { ApiMiddlewareOptions } from "./types"
-import { ensureProtocol, getMiddlewareOptions, ignoreProtocol } from "./utils"
+import { getMiddlewareOptions } from "./utils"
 
 // Mock global fetch
 vi.stubGlobal("fetch", vi.fn())
 // Mock API_HOSTNAME that's injected by tsup
-vi.stubGlobal("API_HOSTNAME", "bot-gateway.appwarden.io")
+vi.stubGlobal("API_HOSTNAME", "https://bot-gateway.appwarden.io")
 
 describe("utils", () => {
-  describe("ensureProtocol", () => {
-    it("should add https:// to a domain without protocol", () => {
-      expect(ensureProtocol("example.com")).toBe("https://example.com")
-    })
-
-    it("should not modify a domain with http:// protocol", () => {
-      expect(ensureProtocol("http://example.com")).toBe("http://example.com")
-    })
-
-    it("should not modify a domain with https:// protocol", () => {
-      expect(ensureProtocol("https://example.com")).toBe("https://example.com")
-    })
-  })
-
-  describe("ignoreProtocol", () => {
-    it("should remove http:// from a domain", () => {
-      expect(ignoreProtocol("http://example.com")).toBe("example.com")
-    })
-
-    it("should remove https:// from a domain", () => {
-      expect(ignoreProtocol("https://example.com")).toBe("example.com")
-    })
-
-    it("should not modify a domain without protocol", () => {
-      expect(ignoreProtocol("example.com")).toBe("example.com")
-    })
-  })
-
   describe("getMiddlewareOptions", () => {
     const mockFetch = vi.fn()
     const mockHostname = "test.example.com"
