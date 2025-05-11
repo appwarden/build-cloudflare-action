@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.5
+
+### Patch Changes
+
+- [#54](https://github.com/appwarden/build-cloudflare-action/pull/54) [`0cd6131`](https://github.com/appwarden/build-cloudflare-action/commit/0cd61319d3c2db69613d72aba7e4498d63a8bafe) Thanks [@stevefrench39](https://github.com/stevefrench39)! - update appwarden api token header key
+
 ## 1.1.4
 
 ### Patch Changes
