@@ -22,7 +22,7 @@ const Debug = (debug: boolean) => (msg: unknown) => {
 
 let debug: (msg: unknown) => void
 
-async function main() {
+export async function main() {
   debug = Debug(core.getInput("debug") === "true")
 
   debug(`Validating repository`)
@@ -79,7 +79,9 @@ async function main() {
       )
     }
 
-    throw error
+    return core.setFailed(
+      error instanceof Error ? error.message : String(error),
+    )
   }
 
   if (!middlewareOptions) {
