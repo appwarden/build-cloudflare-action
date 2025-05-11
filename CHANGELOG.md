@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.6
+
+### Patch Changes
+
+- [#57](https://github.com/appwarden/build-cloudflare-action/pull/57) [`6f30a9d`](https://github.com/appwarden/build-cloudflare-action/commit/6f30a9dd4b62e56801b6ff17f816ed4117b32707) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improve api token validation
+
 ## 1.1.5
 
 ### Patch Changes
