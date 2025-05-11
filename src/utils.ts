@@ -1,4 +1,4 @@
-import { ApiMiddlewareOptions } from "./types"
+import { ApiMiddlewareOptions, APIResponse } from "./types"
 
 const protocolRegex = /^https?:\/\//i
 
@@ -30,10 +30,17 @@ export const getMiddlewareOptions = (
       // @ts-expect-error tsup config
       ensureProtocol(API_HOSTNAME),
     ),
-    { headers: { "appwarden-token": apiToken } },
+    { headers: { Authorization: apiToken } },
   )
-    .then((res) => {
+    .then(async (res) => {
       if ([403, 401].includes(res.status)) {
+        if (res.headers.get("content-type")?.includes("application/json")) {
+          const result = (await res.json()) as APIResponse
+          if (result.error?.message) {
+            throw new Error(result.error.message)
+          }
+        }
+
         throw new Error("BAD_AUTH")
       }
 

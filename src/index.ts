@@ -47,8 +47,8 @@ async function main() {
   debug(`Validating configuration`)
 
   const maybeConfig = await ConfigSchema.safeParseAsync({
-    hostname: core.getInput("hostname"),
     debug: core.getInput("debug"),
+    hostname: core.getInput("hostname"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
   })
 
@@ -72,9 +72,11 @@ async function main() {
     )
   } catch (error) {
     if (error instanceof Error) {
-      if (error.message === "BAD_AUTH") {
-        return core.setFailed(`Invalid Appwarden API token`)
-      }
+      return core.setFailed(
+        error.message === "BAD_AUTH"
+          ? "Invalid Appwarden API token"
+          : error.message,
+      )
     }
 
     throw error
