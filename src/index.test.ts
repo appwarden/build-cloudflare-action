@@ -37,6 +37,7 @@ describe("main function", () => {
         debug: true,
         hostname: "test.example.com",
         cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+        appwardenApiToken: "mock-api-token",
       },
     } as any)
 
@@ -69,11 +70,12 @@ describe("main function", () => {
     // Verify repository validation
     expect(readdir).toHaveBeenCalledWith("..")
 
-    // Verify configuration validation
+    // Verify configuration validation with all required inputs
     expect(ConfigSchema.safeParseAsync).toHaveBeenCalledWith({
       debug: "true",
       hostname: "test.example.com",
       cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+      appwardenApiToken: "mock-api-token",
     })
 
     // Verify middleware options fetching
@@ -154,8 +156,8 @@ describe("main function", () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
-  it("should fail when config validation fails", async () => {
-    // Mock ConfigSchema.safeParseAsync to return validation error
+  it("should fail when config validation fails due to invalid hostname", async () => {
+    // Mock ConfigSchema.safeParseAsync to return validation error for hostname
     const mockError = {
       format: () => ({ hostname: { _errors: ["Invalid hostname"] } }),
     }
@@ -179,8 +181,71 @@ describe("main function", () => {
     expect(writeFile).not.toHaveBeenCalled()
   })
 
+  it("should fail when config validation fails due to missing API token", async () => {
+    // Mock ConfigSchema.safeParseAsync to return validation error for appwardenApiToken
+    const mockError = {
+      format: () => ({ appwardenApiToken: { _errors: ["Required"] } }),
+    }
+    vi.mocked(ConfigSchema.safeParseAsync).mockResolvedValue({
+      success: false,
+      error: mockError,
+    } as any)
+
+    // Mock getInput to return empty string for appwarden-api-token
+    vi.spyOn(core, "getInput").mockImplementation((name) => {
+      if (name === "debug") return "true"
+      if (name === "hostname") return "test.example.com"
+      if (name === "cloudflare-account-id")
+        return "1234567890abcdef1234567890abcdef"
+      if (name === "appwarden-api-token") return ""
+      return ""
+    })
+
+    // Import and execute the main function
+    const indexModule = await import("./index")
+
+    // Execute the main function
+    await indexModule.main()
+
+    // Verify core.setFailed was called with the formatted error
+    expect(core.setFailed).toHaveBeenCalledWith(
+      JSON.stringify(mockError.format(), null, 2),
+    )
+
+    // Verify that no files were written
+    expect(writeFile).not.toHaveBeenCalled()
+  })
+
   it("should fail when getMiddlewareOptions throws BAD_AUTH error", async () => {
     // Mock getMiddlewareOptions to throw BAD_AUTH error
+    const error = new Error("BAD_AUTH")
+    vi.mocked(getMiddlewareOptions).mockRejectedValue(error)
+
+    // Import and execute the main function
+    const indexModule = await import("./index")
+
+    // Execute the main function
+    await indexModule.main()
+
+    // Verify core.setFailed was called with the correct error message
+    expect(core.setFailed).toHaveBeenCalledWith("Invalid Appwarden API token")
+
+    // Verify that no files were written
+    expect(writeFile).not.toHaveBeenCalled()
+  })
+
+  it("should fail when API token is invalid format", async () => {
+    // Mock getInput to return an invalid API token format
+    vi.spyOn(core, "getInput").mockImplementation((name) => {
+      if (name === "debug") return "true"
+      if (name === "hostname") return "test.example.com"
+      if (name === "cloudflare-account-id")
+        return "1234567890abcdef1234567890abcdef"
+      if (name === "appwarden-api-token") return "invalid-format-token"
+      return ""
+    })
+
+    // Mock getMiddlewareOptions to throw BAD_AUTH error for invalid token format
     const error = new Error("BAD_AUTH")
     vi.mocked(getMiddlewareOptions).mockRejectedValue(error)
 
@@ -260,5 +325,41 @@ describe("main function", () => {
 
     // Verify debug output was not called
     expect(console.log).not.toHaveBeenCalled()
+  })
+
+  it("should pass the API token correctly to getMiddlewareOptions", async () => {
+    // Mock getInput to return a specific API token
+    const specificApiToken = "specific-api-token-for-testing"
+    vi.spyOn(core, "getInput").mockImplementation((name) => {
+      if (name === "debug") return "true"
+      if (name === "hostname") return "test.example.com"
+      if (name === "cloudflare-account-id")
+        return "1234567890abcdef1234567890abcdef"
+      if (name === "appwarden-api-token") return specificApiToken
+      return ""
+    })
+
+    // Update the ConfigSchema mock to include the specific token
+    vi.mocked(ConfigSchema.safeParseAsync).mockResolvedValue({
+      success: true,
+      data: {
+        debug: true,
+        hostname: "test.example.com",
+        cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+        appwardenApiToken: specificApiToken,
+      },
+    } as any)
+
+    // Import and execute the main function
+    const indexModule = await import("./index")
+
+    // Execute the main function
+    await indexModule.main()
+
+    // Verify the API token was passed correctly to getMiddlewareOptions
+    expect(getMiddlewareOptions).toHaveBeenCalledWith(
+      "test.example.com",
+      specificApiToken,
+    )
   })
 })
