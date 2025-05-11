@@ -24681,6 +24681,7 @@ var ConfigSchema = z.object({
     message: "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
     path: ["cloudflareAccountId"]
   }),
+  appwardenApiToken: z.string(),
   debug: OptionalBooleanSchema.default(false)
 });
 
@@ -24770,21 +24771,15 @@ CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
 
 // src/utils.ts
-var protocolRegex = /^https?:\/\//i;
-var ensureProtocol = (maybeFQDN) => {
-  const hasProtocol = protocolRegex.test(maybeFQDN);
-  if (!hasProtocol) {
-    return `https://${maybeFQDN}`;
-  }
-  return maybeFQDN;
-};
 var getMiddlewareOptions = (hostname, apiToken) => fetch(
   new URL(
     `/v1/middleware-config?monitorHostname=${hostname}`,
     // @ts-expect-error tsup config
-    ensureProtocol("bot-gateway.appwarden.io")
+    "https://bot-gateway.appwarden.io"
   ),
-  { headers: { Authorization: apiToken } }
+  {
+    headers: { Authorization: apiToken }
+  }
 ).then(async (res) => {
   if ([403, 401].includes(res.status)) {
     if (res.headers.get("content-type")?.includes("application/json")) {
@@ -24831,7 +24826,8 @@ async function main() {
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
     hostname: core.getInput("hostname"),
-    cloudflareAccountId: core.getInput("cloudflare-account-id")
+    cloudflareAccountId: core.getInput("cloudflare-account-id"),
+    appwardenApiToken: core.getInput("appwarden-api-token")
   });
   if (!maybeConfig.success) {
     return core.setFailed(JSON.stringify(maybeConfig.error.format(), null, 2));
@@ -24844,7 +24840,7 @@ async function main() {
   try {
     middlewareOptions = await getMiddlewareOptions(
       config.hostname,
-      core.getInput("appwarden-api-token")
+      config.appwardenApiToken
     );
   } catch (error2) {
     if (error2 instanceof Error) {

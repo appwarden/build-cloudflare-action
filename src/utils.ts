@@ -1,25 +1,5 @@
 import { ApiMiddlewareOptions, APIResponse } from "./types"
 
-const protocolRegex = /^https?:\/\//i
-
-export const ensureProtocol = (maybeFQDN: string) => {
-  const hasProtocol = protocolRegex.test(maybeFQDN)
-  if (!hasProtocol) {
-    return `https://${maybeFQDN}`
-  }
-
-  return maybeFQDN
-}
-
-export const ignoreProtocol = (maybeFQDN: string) => {
-  const hasProtocol = protocolRegex.test(maybeFQDN)
-  if (hasProtocol) {
-    return maybeFQDN.replace(protocolRegex, "")
-  }
-
-  return maybeFQDN
-}
-
 export const getMiddlewareOptions = (
   hostname: string,
   apiToken: string,
@@ -28,9 +8,11 @@ export const getMiddlewareOptions = (
     new URL(
       `/v1/middleware-config?monitorHostname=${hostname}`,
       // @ts-expect-error tsup config
-      ensureProtocol(API_HOSTNAME),
+      API_HOSTNAME,
     ),
-    { headers: { Authorization: apiToken } },
+    {
+      headers: { Authorization: apiToken },
+    },
   )
     .then(async (res) => {
       if ([403, 401].includes(res.status)) {
