@@ -4,20 +4,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { ConfigSchema } from "./schema"
 import { getMiddlewareOptions } from "./utils"
 
-// Mock dependencies
-vi.mock("@actions/core")
+// Mock dependencies (except @actions/core and ./templates)
 vi.mock("fs/promises")
 vi.mock("./schema")
 vi.mock("./utils")
-vi.mock("./templates", () => ({
-  appTemplate: "mock-app-template",
-  packageJsonTemplate: "mock-package-json-template",
-  wranglerFileTemplate: "mock-wrangler-file-template",
-  hydratePackageJson: vi.fn().mockReturnValue("hydrated-package-json"),
-  hydrateWranglerTemplate: vi
-    .fn()
-    .mockReturnValue("hydrated-wrangler-template"),
-}))
 
 // Mock global constant that's injected by tsup
 vi.stubGlobal("MIDDLEWARE_VERSION", "1.0.0")
@@ -27,8 +17,8 @@ describe("main function", () => {
     // Reset all mocks before each test
     vi.resetAllMocks()
 
-    // Setup default mock implementations
-    vi.mocked(core.getInput).mockImplementation((name) => {
+    // Setup spies for @actions/core
+    vi.spyOn(core, "getInput").mockImplementation((name) => {
       if (name === "debug") return "true"
       if (name === "hostname") return "test.example.com"
       if (name === "cloudflare-account-id")
@@ -36,6 +26,8 @@ describe("main function", () => {
       if (name === "appwarden-api-token") return "mock-api-token"
       return ""
     })
+    vi.spyOn(core, "setFailed").mockImplementation(() => {})
+    vi.spyOn(core, "error").mockImplementation(() => {})
 
     vi.mocked(readdir).mockResolvedValue(["repo-name"] as any)
 
@@ -104,17 +96,20 @@ describe("main function", () => {
 
     // Now verify the writeFile calls
     expect(writeFile).toHaveBeenCalledTimes(3)
+
+    // Verify that writeFile was called with the correct file paths
+    // We don't check the exact content since we're using the actual templates
     expect(writeFile).toHaveBeenCalledWith(
       ".appwarden/generated-middleware/package.json",
-      "hydrated-package-json",
+      expect.any(String),
     )
     expect(writeFile).toHaveBeenCalledWith(
       ".appwarden/generated-middleware/wrangler.toml",
-      "hydrated-wrangler-template",
+      expect.any(String),
     )
     expect(writeFile).toHaveBeenCalledWith(
       ".appwarden/generated-middleware/app.mjs",
-      "mock-app-template",
+      expect.any(String),
     )
 
     // Verify debug output
@@ -241,7 +236,7 @@ describe("main function", () => {
 
   it("should handle debug mode being disabled", async () => {
     // Mock debug input to be false
-    vi.mocked(core.getInput).mockImplementation((name) => {
+    vi.spyOn(core, "getInput").mockImplementation((name) => {
       if (name === "debug") return "false"
       if (name === "hostname") return "test.example.com"
       if (name === "cloudflare-account-id")

@@ -75,7 +75,7 @@ describe("utils", () => {
 
       // Verify fetch was called with the correct URL and headers
       expect(mockFetch).toHaveBeenCalledWith(expect.any(URL), {
-        headers: { "appwarden-token": mockApiToken },
+        headers: { Authorization: mockApiToken },
       })
 
       // Verify the URL contains the correct hostname
@@ -93,6 +93,7 @@ describe("utils", () => {
         headers: {
           get: () => "application/json",
         },
+        json: async () => ({}),
       })
 
       await expect(
@@ -107,6 +108,7 @@ describe("utils", () => {
         headers: {
           get: () => "application/json",
         },
+        json: async () => ({}),
       })
 
       await expect(
@@ -114,9 +116,8 @@ describe("utils", () => {
       ).rejects.toThrow("BAD_AUTH")
     })
 
-    // Note: Based on the implementation, custom error messages aren't supported
-    // The implementation always throws "BAD_AUTH" for 401/403 status codes
-    it("should throw BAD_AUTH error for 403 status regardless of error message", async () => {
+    // The implementation throws the custom error message if one is provided
+    it("should throw custom error message when API returns error", async () => {
       // Mock fetch to return 403 with custom error message
       mockFetch.mockResolvedValue({
         status: 403,
@@ -130,7 +131,7 @@ describe("utils", () => {
 
       await expect(
         getMiddlewareOptions(mockHostname, mockApiToken),
-      ).rejects.toThrow("BAD_AUTH")
+      ).rejects.toThrow("Custom API error")
     })
 
     it("should return undefined when no middleware options are found", async () => {
