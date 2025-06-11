@@ -76,13 +76,13 @@ export async function main() {
       return core.setFailed(
         error.message === "BAD_AUTH"
           ? "Invalid Appwarden API token"
-          : error.message,
+          : error.message === "no_domain_configurations"
+            ? `The provided hostname (${config.hostname}) was not found in a domain configuration file. Please add it to your websites and try again. [https://appwarden.io/docs/guides/domain-configuration-management]`
+            : error.message,
       )
     }
 
-    return core.setFailed(
-      error instanceof Error ? error.message : String(error),
-    )
+    return core.setFailed(String(error))
   }
 
   if (!middlewareOptions) {
