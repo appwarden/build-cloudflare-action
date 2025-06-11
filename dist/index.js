@@ -24781,9 +24781,12 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
     headers: { Authorization: apiToken }
   }
 ).then(async (res) => {
-  if ([403, 401].includes(res.status)) {
+  if (res.status >= 400) {
     if (res.headers.get("content-type")?.includes("application/json")) {
       const result = await res.json();
+      if (result.error?.code) {
+        throw new Error(result.error.code);
+      }
       if (result.error?.message) {
         throw new Error(result.error.message);
       }
@@ -24797,7 +24800,7 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
 });
 
 // src/index.ts
-var middlewareVersion = "1.1.5";
+var middlewareVersion = "1.4.0";
 var Debug = (debug2) => (msg) => {
   if (debug2) {
     console.log(msg);
@@ -24845,12 +24848,10 @@ async function main() {
   } catch (error2) {
     if (error2 instanceof Error) {
       return core.setFailed(
-        error2.message === "BAD_AUTH" ? "Invalid Appwarden API token" : error2.message
+        error2.message === "BAD_AUTH" ? "Invalid Appwarden API token" : error2.message === "no_domain_configurations" ? `The provided hostname (${config.hostname}) was not found in a domain configuration file. Please add it to your websites and try again. [https://appwarden.io/docs/guides/domain-configuration-management]` : error2.message
       );
     }
-    return core.setFailed(
-      error2 instanceof Error ? error2.message : String(error2)
-    );
+    return core.setFailed(String(error2));
   }
   if (!middlewareOptions) {
     return core.setFailed(
