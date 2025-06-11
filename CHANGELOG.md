@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.7
+
+### Patch Changes
+
+- [#59](https://github.com/appwarden/build-cloudflare-action/pull/59) [`d54aafe`](https://github.com/appwarden/build-cloudflare-action/commit/d54aafe5fe08dffcee53158e8f88c92c36a33db1) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Elegantly render api errors
+
 ## 1.1.6
 
 ### Patch Changes
