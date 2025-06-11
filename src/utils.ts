@@ -1,3 +1,4 @@
+import { getRootDomain } from "./parse-domain"
 import { ApiMiddlewareOptions, APIResponse } from "./types"
 
 export const getMiddlewareOptions = (
@@ -6,7 +7,7 @@ export const getMiddlewareOptions = (
 ): Promise<ApiMiddlewareOptions | undefined> =>
   fetch(
     new URL(
-      `/v1/middleware-config?monitorHostname=${hostname}`,
+      `/v1/middleware-config?monitorHostname=${getRootDomain(hostname)}`,
       // @ts-expect-error tsup config
       API_HOSTNAME,
     ),
