@@ -7,6 +7,7 @@ export type APIResponseContent = AnyRecord[] | AnyRecord | null
 export type APIResponseContext = any
 export type APIResponseError = {
   message: string
+  code?: string
   status?: number
 }
 

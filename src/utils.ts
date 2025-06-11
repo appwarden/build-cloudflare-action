@@ -15,9 +15,12 @@ export const getMiddlewareOptions = (
     },
   )
     .then(async (res) => {
-      if ([403, 401].includes(res.status)) {
+      if (res.status >= 400) {
         if (res.headers.get("content-type")?.includes("application/json")) {
           const result = (await res.json()) as APIResponse
+          if (result.error?.code) {
+            throw new Error(result.error.code)
+          }
           if (result.error?.message) {
             throw new Error(result.error.message)
           }
