@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.8
+
+### Patch Changes
+
+- [#61](https://github.com/appwarden/build-cloudflare-action/pull/61) [`9a77703`](https://github.com/appwarden/build-cloudflare-action/commit/9a77703bc17016a3fa6c1f47b1ba1f40a74bf2eb) Thanks [@stevefrench39](https://github.com/stevefrench39)! - always look up the root domain even for subdomain hostnames
+
 ## 1.1.7
 
 ### Patch Changes
