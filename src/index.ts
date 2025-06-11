@@ -1,5 +1,6 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
+import { getRootDomain } from "./parse-domain"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
@@ -77,7 +78,7 @@ export async function main() {
         error.message === "BAD_AUTH"
           ? "Invalid Appwarden API token"
           : error.message === "no_domain_configurations"
-            ? `The provided hostname (${config.hostname}) was not found in a domain configuration file. Please add it to your websites and try again. [https://appwarden.io/docs/guides/domain-configuration-management]`
+            ? `The hostname (${getRootDomain(config.hostname)}) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`
             : error.message,
       )
     }
