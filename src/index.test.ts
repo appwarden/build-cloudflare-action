@@ -221,7 +221,7 @@ describe("index", () => {
       await main()
 
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        `The provided hostname (${mockConfig.hostname}) was not found in a domain configuration file. Please add it to your websites and try again. [https://appwarden.io/docs/guides/domain-configuration-management]`,
+        `The hostname (example.com) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`,
       )
     })
 
