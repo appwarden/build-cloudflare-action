@@ -11,3 +11,7 @@ logs
 *.log
 npm-debug.log*
 tsconfig.tsbuildinfo
+
+# Coverage reports
+coverage/
+*.lcov

@@ -50,9 +50,9 @@ describe("utils", () => {
         headers: { Authorization: mockApiToken },
       })
 
-      // Verify the URL contains the correct hostname
+      // Verify the URL contains the correct hostname (should be root domain)
       const fetchUrl = mockFetch.mock.calls[0][0].toString()
-      expect(fetchUrl).toContain(`monitorHostname=${mockHostname}`)
+      expect(fetchUrl).toContain(`monitorHostname=example.com`)
 
       // Verify the result matches the mock middleware options
       expect(result).toEqual(mockMiddlewareOptions)
