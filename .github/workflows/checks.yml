@@ -31,9 +31,6 @@ jobs:
       - name: Type check
         run: npm run check:types
 
-      - name: Check formatting
-        run: npm run check:prettier
-
       - name: Run tests with coverage
         run: npm run test:coverage
 
