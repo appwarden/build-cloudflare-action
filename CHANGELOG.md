@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.9
+
+### Patch Changes
+
+- [#64](https://github.com/appwarden/build-cloudflare-action/pull/64) [`6d9cfc3`](https://github.com/appwarden/build-cloudflare-action/commit/6d9cfc3a7dedd0b242cb0a1f146e5ac1f90c9c82) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Middleware deployments include hostname in worker name
+
 ## 1.1.8
 
 ### Patch Changes
