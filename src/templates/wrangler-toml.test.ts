@@ -26,6 +26,7 @@ describe("wrangler-toml", () => {
       )
 
       // Check that all placeholders were replaced
+      expect(result).toContain('name = "appwarden-app_example_com"')
       expect(result).toContain(
         'account_id = "1234567890abcdef1234567890abcdef"',
       )
