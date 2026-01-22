@@ -17689,37 +17689,46 @@ var MiddlewareConfigResponseSchema = external_exports.object({
     })
   )
 });
-var getMiddlewareOptions = (hostname3, apiToken) => fetch(
-  new URL(
-    `/v1/middleware-config?monitorHostname=${getRootDomain(hostname3)}`,
-    // @ts-expect-error tsup config
-    "https://api.appwarden.io"
-  ),
-  {
-    headers: { Authorization: apiToken }
+var getMiddlewareOptions = async (hostname3, apiToken) => {
+  const rootDomain = getRootDomain(hostname3);
+  let res;
+  try {
+    res = await fetch(
+      new URL(
+        `/v1/middleware-config?monitorHostname=${rootDomain}`,
+        // @ts-expect-error tsup config
+        "https://api.appwarden.io"
+      ),
+      {
+        headers: { Authorization: apiToken }
+      }
+    );
+  } catch (error49) {
+    const message = error49 instanceof Error ? error49.message : String(error49);
+    throw new Error(
+      `Failed to fetch middleware configuration for hostname "${hostname3}": ${message}`
+    );
   }
-).then(async (res) => {
   if (res.status >= 400) {
     if (res.headers.get("content-type")?.includes("application/json")) {
-      const result = await res.json();
-      if (result.error?.code) {
-        throw new Error(result.error.code);
+      const result2 = await res.json();
+      if (result2.error?.code) {
+        throw new Error(result2.error.code);
       }
-      if (result.error?.message) {
-        throw new Error(result.error.message);
+      if (result2.error?.message) {
+        throw new Error(result2.error.message);
       }
     }
     throw new Error("BAD_AUTH");
   }
-  return res;
-}).then((res) => res.json()).then((result) => {
+  const result = await res.json();
   const parsed = MiddlewareConfigResponseSchema.safeParse(result);
   if (!parsed.success) {
     return void 0;
   }
   const config2 = parsed.data.content[0];
   return config2 ? config2.options : void 0;
-});
+};
 
 // src/index.ts
 var middlewareVersion = "1.4.0";
