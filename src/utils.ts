@@ -1,5 +1,22 @@
+import { z } from "zod"
 import { getRootDomain } from "./parse-domain"
 import { ApiMiddlewareOptions, APIResponse } from "./types"
+
+// Schema for validating the API response structure
+const ApiMiddlewareOptionsSchema = z.object({
+  debug: z.boolean().optional(),
+  "lock-page-slug": z.string().optional(),
+  "csp-mode": z.enum(["disabled", "report-only", "enforced"]).optional(),
+  "csp-directives": z.record(z.string(), z.string()).optional(),
+})
+
+const MiddlewareConfigResponseSchema = z.object({
+  content: z.array(
+    z.object({
+      options: ApiMiddlewareOptionsSchema,
+    }),
+  ),
+})
 
 export const getMiddlewareOptions = (
   hostname: string,
@@ -33,7 +50,15 @@ export const getMiddlewareOptions = (
       return res
     })
     .then((res) => res.json())
-    .then((result: any) => {
-      const config = result.content[0] as { options: ApiMiddlewareOptions }
+    .then((result: unknown) => {
+      const parsed = MiddlewareConfigResponseSchema.safeParse(result)
+
+      if (!parsed.success) {
+        // If parsing fails, the API response structure is unexpected
+        // Return undefined to trigger the "could not find configuration" error
+        return undefined
+      }
+
+      const config = parsed.data.content[0]
       return config ? config.options : undefined
     })

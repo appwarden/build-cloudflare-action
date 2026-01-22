@@ -28,8 +28,8 @@ describe("index", () => {
     const mockConfig = {
       debug: false,
       hostname: "app.example.com",
-      cloudflareAccountId: "12345678901234567890123456789012",
-      appwardenApiToken: "test-api-token",
+      cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+      appwardenApiToken: "test-api-token-1234567890",
     }
 
     const mockMiddlewareOptions: ApiMiddlewareOptions = {
@@ -176,7 +176,7 @@ describe("index", () => {
       )
     })
 
-    it("should handle empty appwarden api token (valid but will fail auth)", async () => {
+    it("should fail validation with empty appwarden api token", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
           case "hostname":
@@ -192,14 +192,35 @@ describe("index", () => {
         }
       })
 
-      // Mock the middleware options to fail with BAD_AUTH since empty token will fail
-      mockGetMiddlewareOptions.mockRejectedValue(new Error("BAD_AUTH"))
+      await main()
+
+      // Should fail with validation error for empty token
+      expect(mockCore.setFailed).toHaveBeenCalledWith(
+        expect.stringContaining("appwardenApiToken"),
+      )
+    })
+
+    it("should fail validation with too short appwarden api token", async () => {
+      mockCore.getInput.mockImplementation((name: string) => {
+        switch (name) {
+          case "hostname":
+            return mockConfig.hostname
+          case "debug":
+            return "false"
+          case "cloudflare-account-id":
+            return mockConfig.cloudflareAccountId
+          case "appwarden-api-token":
+            return "short"
+          default:
+            return ""
+        }
+      })
 
       await main()
 
-      // Should fail with auth error, not validation error
+      // Should fail with validation error for short token
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        "Invalid Appwarden API token",
+        expect.stringContaining("too short"),
       )
     })
 

@@ -24672,16 +24672,20 @@ var OptionalBooleanSchema = z.union([z.string(), z.boolean(), z.undefined()]).tr
   }
   throw new Error("Invalid value");
 });
+var CloudflareAccountIdSchema = z.string().refine((val) => /^[a-f0-9]{32}$/.test(val), {
+  message: "cloudflareAccountId must be a 32 character hexadecimal string (lowercase a-f, 0-9). You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
+  path: ["cloudflareAccountId"]
+});
+var ApiTokenSchema = z.string().min(1, { message: "appwardenApiToken is required" }).min(16, {
+  message: "appwardenApiToken appears to be invalid (too short). Please check your API token."
+});
 var ConfigSchema = z.object({
   hostname: z.string().refine((val) => isValidHostname(val), {
     message: "`hostname` must be a valid domain name. (e.g. `app.example.com`)",
     path: ["hostname"]
   }),
-  cloudflareAccountId: z.string().refine((val) => val.length === 32, {
-    message: "cloudflareAccountId must be a 32 character string. You can find this in your Cloudflare dashboard url: dash.cloudflare.com/<cloudflareAccountId>",
-    path: ["cloudflareAccountId"]
-  }),
-  appwardenApiToken: z.string(),
+  cloudflareAccountId: CloudflareAccountIdSchema,
+  appwardenApiToken: ApiTokenSchema,
   debug: OptionalBooleanSchema.default(false)
 });
 
@@ -24774,6 +24778,19 @@ CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
 
 // src/utils.ts
+var ApiMiddlewareOptionsSchema = z.object({
+  debug: z.boolean().optional(),
+  "lock-page-slug": z.string().optional(),
+  "csp-mode": z.enum(["disabled", "report-only", "enforced"]).optional(),
+  "csp-directives": z.record(z.string(), z.string()).optional()
+});
+var MiddlewareConfigResponseSchema = z.object({
+  content: z.array(
+    z.object({
+      options: ApiMiddlewareOptionsSchema
+    })
+  )
+});
 var getMiddlewareOptions = (hostname, apiToken) => fetch(
   new URL(
     `/v1/middleware-config?monitorHostname=${getRootDomain(hostname)}`,
@@ -24798,7 +24815,11 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
   }
   return res;
 }).then((res) => res.json()).then((result) => {
-  const config = result.content[0];
+  const parsed = MiddlewareConfigResponseSchema.safeParse(result);
+  if (!parsed.success) {
+    return void 0;
+  }
+  const config = parsed.data.content[0];
   return config ? config.options : void 0;
 });
 
