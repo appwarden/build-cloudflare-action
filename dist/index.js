@@ -24778,7 +24778,7 @@ var getMiddlewareOptions = (hostname, apiToken) => fetch(
   new URL(
     `/v1/middleware-config?monitorHostname=${getRootDomain(hostname)}`,
     // @ts-expect-error tsup config
-    "https://bot-gateway.appwarden.io"
+    "https://api.appwarden.io"
   ),
   {
     headers: { Authorization: apiToken }
