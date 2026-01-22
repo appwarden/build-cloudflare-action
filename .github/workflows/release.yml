@@ -20,13 +20,13 @@ jobs:
       issues: read
     steps:
       - name: Checkout Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4.3.1
         with:
           fetch-depth: 0
           fetch-tags: true
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: latest
           cache: npm
@@ -36,7 +36,7 @@ jobs:
 
       - name: Create Version PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v1.6.0
         with:
           createGithubReleases: true
           publish: npx changeset tag
@@ -57,7 +57,7 @@ jobs:
 
       - name: Publish
         if: steps.changesets.outputs.published == 'true'
-        uses: teunmooij/github-versioned-release@v1
+        uses: teunmooij/github-versioned-release@v1.2.1
         with:
           template: javascript-action
           version: ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}
