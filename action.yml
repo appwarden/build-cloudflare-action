@@ -7,19 +7,17 @@ author: Appwarden <https://github.com/appwarden>
 inputs:
   debug:
     description: Enable debug mode. Defaults to 'false'.
-    default: false
+    required: false
+    default: 'false'
   hostname:
-    required: true
-    type: string
     description: The hostname of your Appwarden-protected domain
+    required: true
   cloudflare-account-id:
-    required: true
-    type: string
     description: Cloudflare account id
-  appwarden-api-token:
     required: true
-    type: string
+  appwarden-api-token:
     description: Appwarden API token
+    required: true
 runs:
   using: node20
   main: dist/index.js
