@@ -49,10 +49,10 @@
     "@types/node": "^25.0.10",
     "@vitest/coverage-v8": "^4.0.18",
     "lefthook": "^2.0.15",
-    "prettier": "^3.5.3",
+    "prettier": "^3.8.1",
     "semver": "^7.7.1",
-    "tsup": "8.4.0",
-    "typescript": "^5.8.3",
+    "tsup": "8.5.1",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
 }
