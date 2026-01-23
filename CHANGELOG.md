@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.11
+
+### Patch Changes
+
+- [`14cfc15`](https://github.com/appwarden/build-cloudflare-action/commit/14cfc15845f58809457cfd45dacfb68b43c8ab85) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improve network-level error logging
+
 ## 1.1.10
 
 ### Patch Changes
