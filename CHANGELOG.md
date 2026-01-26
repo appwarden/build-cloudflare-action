@@ -1,5 +1,19 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.11
+
+### Patch Changes
+
+- [`14cfc15`](https://github.com/appwarden/build-cloudflare-action/commit/14cfc15845f58809457cfd45dacfb68b43c8ab85) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improve network-level error logging
+
+## 1.1.10
+
+### Patch Changes
+
+- [`5482c75`](https://github.com/appwarden/build-cloudflare-action/commit/5482c7535d034a11784b2ea74dbd86412ef661dd) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Bumped packages based on dependabot recommendations
+
+- [`a256cad`](https://github.com/appwarden/build-cloudflare-action/commit/a256cadb1431a8a69cfaa9a98f5d025c2d1c5551) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Hardened action inputs and pinned workflow dependencies
+
 ## 1.1.9
 
 ### Patch Changes

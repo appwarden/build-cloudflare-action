@@ -26,7 +26,7 @@ let debug: (msg: unknown) => void
 export async function main() {
   debug = Debug(core.getInput("debug") === "true")
 
-  debug(`Validating repository`)
+  debug(`[repository] Validating repository`)
 
   let repoName = ""
   try {
@@ -44,8 +44,8 @@ export async function main() {
     )
   }
 
-  debug(`✅ Validating repository`)
-  debug(`Validating configuration`)
+  debug(`[repository] ✅ Validation complete`)
+  debug(`[config] Validating configuration`)
 
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
@@ -60,17 +60,18 @@ export async function main() {
 
   const config = maybeConfig.data
 
-  debug(`✅ Validating configuration`)
+  debug(`[config] ✅ Validation complete`)
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`Fetching middleware configuration`)
+  debug(`[middleware-config] Fetching middleware configuration`)
 
   let middlewareOptions: ApiMiddlewareOptions | undefined
   try {
     middlewareOptions = await getMiddlewareOptions(
       config.hostname,
       config.appwardenApiToken,
+      debug,
     )
   } catch (error) {
     if (error instanceof Error) {
@@ -93,14 +94,14 @@ export async function main() {
   }
 
   debug(
-    `✅ Fetching middleware configuration \n ${JSON.stringify(
+    `[middleware-config] ✅ Fetch complete \n ${JSON.stringify(
       middlewareOptions,
       null,
       2,
     )}`,
   )
 
-  debug(`Generating middleware files`)
+  debug(`[generation] Generating middleware files`)
 
   // write the app files
   await mkdir(middlewareDir, { recursive: true })
@@ -119,10 +120,10 @@ export async function main() {
 
   for (const [fileName, fileContent] of projectFiles) {
     await writeFile(`${middlewareDir}/${fileName}`, fileContent)
-    debug(`Generated ${fileName}:\n ${fileContent}`)
+    debug(`[generation] Generated ${fileName}:\n ${fileContent}`)
   }
 
-  debug(`✅ Generating middleware files`)
+  debug(`[generation] ✅ Generation complete`)
 }
 
 main().catch((err) => {
