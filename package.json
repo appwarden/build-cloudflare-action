@@ -45,7 +45,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
-    "@cloudflare/workers-types": "^4.20250510.0",
+    "@cloudflare/workers-types": "^4.20260124.0",
     "@types/node": "^25.0.10",
     "@vitest/coverage-v8": "^4.0.18",
     "lefthook": "^2.0.15",
