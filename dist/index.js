@@ -17689,29 +17689,39 @@ var MiddlewareConfigResponseSchema = external_exports.object({
     })
   )
 });
-var getMiddlewareOptions = async (hostname3, apiToken) => {
+var isWellFormedToken = (token) => {
+  return typeof token === "string" && token.length >= 16;
+};
+var getMiddlewareOptions = async (hostname3, apiToken, debug2 = () => {
+}) => {
   const rootDomain = getRootDomain(hostname3);
+  const url2 = new URL(
+    `/v1/middleware-config?monitorHostname=${rootDomain}`,
+    // @ts-expect-error tsup config
+    "https://api.appwarden.io"
+  );
+  debug2(`[middleware-config] Request URL: ${url2.toString()}`);
+  debug2(
+    `[middleware-config] Token well-formed: ${isWellFormedToken(apiToken)} (length: ${apiToken?.length ?? 0})`
+  );
   let res;
   try {
-    res = await fetch(
-      new URL(
-        `/v1/middleware-config?monitorHostname=${rootDomain}`,
-        // @ts-expect-error tsup config
-        "https://api.appwarden.io"
-      ),
-      {
-        headers: { Authorization: apiToken }
-      }
-    );
+    res = await fetch(url2, {
+      headers: { Authorization: apiToken }
+    });
   } catch (error49) {
     const message = error49 instanceof Error ? error49.message : String(error49);
     throw new Error(
       `Failed to fetch middleware configuration for hostname "${hostname3}": ${message}`
     );
   }
+  debug2(`[middleware-config] Response status: ${res.status}`);
   if (res.status >= 400) {
     if (res.headers.get("content-type")?.includes("application/json")) {
       const result2 = await res.json();
+      debug2(
+        `[middleware-config] Error response body: ${JSON.stringify(result2, null, 2)}`
+      );
       if (result2.error?.code) {
         throw new Error(result2.error.code);
       }
@@ -17722,8 +17732,14 @@ var getMiddlewareOptions = async (hostname3, apiToken) => {
     throw new Error("BAD_AUTH");
   }
   const result = await res.json();
+  debug2(
+    `[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`
+  );
   const parsed = MiddlewareConfigResponseSchema.safeParse(result);
   if (!parsed.success) {
+    debug2(
+      `[middleware-config] Schema validation failed: ${JSON.stringify(parsed.error.format(), null, 2)}`
+    );
     return void 0;
   }
   const config2 = parsed.data.content[0];
@@ -17740,7 +17756,7 @@ var Debug = (debug2) => (msg) => {
 var debug;
 async function main() {
   debug = Debug(core.getInput("debug") === "true");
-  debug(`Validating repository`);
+  debug(`[repository] Validating repository`);
   let repoName = "";
   try {
     const files = await (0, import_promises.readdir)("..");
@@ -17755,8 +17771,8 @@ async function main() {
       "Repository not found. Did you forget to include `actions/checkout` in your workflow?"
     );
   }
-  debug(`\u2705 Validating repository`);
-  debug(`Validating configuration`);
+  debug(`[repository] \u2705 Validation complete`);
+  debug(`[config] Validating configuration`);
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
     hostname: core.getInput("hostname"),
@@ -17767,14 +17783,15 @@ async function main() {
     return core.setFailed(JSON.stringify(maybeConfig.error.format(), null, 2));
   }
   const config2 = maybeConfig.data;
-  debug(`\u2705 Validating configuration`);
+  debug(`[config] \u2705 Validation complete`);
   const middlewareDir = ".appwarden/generated-middleware";
-  debug(`Fetching middleware configuration`);
+  debug(`[middleware-config] Fetching middleware configuration`);
   let middlewareOptions;
   try {
     middlewareOptions = await getMiddlewareOptions(
       config2.hostname,
-      config2.appwardenApiToken
+      config2.appwardenApiToken,
+      debug
     );
   } catch (error49) {
     if (error49 instanceof Error) {
@@ -17790,14 +17807,14 @@ async function main() {
     );
   }
   debug(
-    `\u2705 Fetching middleware configuration 
+    `[middleware-config] \u2705 Fetch complete 
  ${JSON.stringify(
       middlewareOptions,
       null,
       2
     )}`
   );
-  debug(`Generating middleware files`);
+  debug(`[generation] Generating middleware files`);
   await (0, import_promises.mkdir)(middlewareDir, { recursive: true });
   const projectFiles = [
     [
@@ -17812,10 +17829,10 @@ async function main() {
   ];
   for (const [fileName, fileContent] of projectFiles) {
     await (0, import_promises.writeFile)(`${middlewareDir}/${fileName}`, fileContent);
-    debug(`Generated ${fileName}:
+    debug(`[generation] Generated ${fileName}:
  ${fileContent}`);
   }
-  debug(`\u2705 Generating middleware files`);
+  debug(`[generation] \u2705 Generation complete`);
 }
 main().catch((err) => {
   core.error(err);

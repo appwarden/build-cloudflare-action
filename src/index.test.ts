@@ -81,6 +81,7 @@ describe("index", () => {
       expect(mockGetMiddlewareOptions).toHaveBeenCalledWith(
         mockConfig.hostname,
         mockConfig.appwardenApiToken,
+        expect.any(Function),
       )
 
       // Verify directory creation
@@ -294,10 +295,10 @@ describe("index", () => {
 
       await main()
 
-      // Verify debug messages were logged
-      expect(consoleSpy).toHaveBeenCalledWith("Validating repository")
-      expect(consoleSpy).toHaveBeenCalledWith("✅ Validating repository")
-      expect(consoleSpy).toHaveBeenCalledWith("Validating configuration")
+      // Verify debug messages were logged with categorical prefixes
+      expect(consoleSpy).toHaveBeenCalledWith("[repository] Validating repository")
+      expect(consoleSpy).toHaveBeenCalledWith("[repository] ✅ Validation complete")
+      expect(consoleSpy).toHaveBeenCalledWith("[config] Validating configuration")
 
       consoleSpy.mockRestore()
     })
