@@ -18,24 +18,36 @@ const MiddlewareConfigResponseSchema = z.object({
   ),
 })
 
+export type DebugLogger = (msg: unknown) => void
+
+const isWellFormedToken = (token: string): boolean => {
+  // Check if token exists and has a reasonable length (at least 16 chars)
+  return typeof token === "string" && token.length >= 16
+}
+
 export const getMiddlewareOptions = async (
   hostname: string,
   apiToken: string,
+  debug: DebugLogger = () => {},
 ): Promise<ApiMiddlewareOptions | undefined> => {
   const rootDomain = getRootDomain(hostname)
 
+  const url = new URL(
+    `/v1/middleware-config?monitorHostname=${rootDomain}`,
+    // @ts-expect-error tsup config
+    API_HOSTNAME,
+  )
+
+  debug(`[middleware-config] Request URL: ${url.toString()}`)
+  debug(
+    `[middleware-config] Token well-formed: ${isWellFormedToken(apiToken)} (length: ${apiToken?.length ?? 0})`,
+  )
+
   let res: Response
   try {
-    res = await fetch(
-      new URL(
-        `/v1/middleware-config?monitorHostname=${rootDomain}`,
-        // @ts-expect-error tsup config
-        API_HOSTNAME,
-      ),
-      {
-        headers: { Authorization: apiToken },
-      },
-    )
+    res = await fetch(url, {
+      headers: { Authorization: apiToken },
+    })
   } catch (error) {
     // Network-level errors (DNS, connection refused, etc.)
     const message = error instanceof Error ? error.message : String(error)
@@ -44,9 +56,14 @@ export const getMiddlewareOptions = async (
     )
   }
 
+  debug(`[middleware-config] Response status: ${res.status}`)
+
   if (res.status >= 400) {
     if (res.headers.get("content-type")?.includes("application/json")) {
       const result = (await res.json()) as APIResponse
+      debug(
+        `[middleware-config] Error response body: ${JSON.stringify(result, null, 2)}`,
+      )
       if (result.error?.code) {
         throw new Error(result.error.code)
       }
@@ -59,10 +76,17 @@ export const getMiddlewareOptions = async (
   }
 
   const result: unknown = await res.json()
+  debug(
+    `[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`,
+  )
+
   const parsed = MiddlewareConfigResponseSchema.safeParse(result)
 
   if (!parsed.success) {
     // If parsing fails, the API response structure is unexpected
+    debug(
+      `[middleware-config] Schema validation failed: ${JSON.stringify(parsed.error.format(), null, 2)}`,
+    )
     // Return undefined to trigger the "could not find configuration" error
     return undefined
   }
