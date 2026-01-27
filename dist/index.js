@@ -17737,10 +17737,11 @@ var getMiddlewareOptions = async (hostname3, apiToken, debug2 = () => {
   );
   const parsed = MiddlewareConfigResponseSchema.safeParse(result);
   if (!parsed.success) {
-    debug2(
-      `[middleware-config] Schema validation failed: ${JSON.stringify(parsed.error.format(), null, 2)}`
+    const formattedError = JSON.stringify(parsed.error.format(), null, 2);
+    throw new Error(
+      `API response validation failed for hostname "${hostname3}". The middleware configuration contains invalid data:
+${formattedError}`
     );
-    return void 0;
   }
   const config2 = parsed.data.content[0];
   return config2 ? config2.options : void 0;

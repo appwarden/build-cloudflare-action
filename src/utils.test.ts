@@ -121,5 +121,33 @@ describe("utils", () => {
       const result = await getMiddlewareOptions(mockHostname, mockApiToken)
       expect(result).toBeUndefined()
     })
+
+    it("should throw an error when API response fails schema validation", async () => {
+      // Mock fetch to return invalid data structure (array instead of string for csp-directives values)
+      mockFetch.mockResolvedValue({
+        json: async () => ({
+          content: [
+            {
+              url: "example.com",
+              options: {
+                "lock-page-slug": "/maintenance",
+                "csp-mode": "report-only",
+                "csp-directives": {
+                  "script-src": ["self", "{{nonce}}"], // Invalid: should be string, not array
+                },
+              },
+            },
+          ],
+        }),
+        headers: {
+          get: () => "application/json",
+        },
+        status: 200,
+      })
+
+      await expect(
+        getMiddlewareOptions(mockHostname, mockApiToken),
+      ).rejects.toThrow("API response validation failed")
+    })
   })
 })
