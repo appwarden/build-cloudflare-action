@@ -1,5 +1,13 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.12
+
+### Patch Changes
+
+- [`324f40b`](https://github.com/appwarden/build-cloudflare-action/commit/324f40b4208ea5d6617799f8d80f7fce9f00d8b7) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improves debug logging
+
+- [`d2dbcbc`](https://github.com/appwarden/build-cloudflare-action/commit/d2dbcbc88c7e2c53d2e9dfcf4f3b101f26829b72) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improved api response error logging
+
 ## 1.1.11
 
 ### Patch Changes
