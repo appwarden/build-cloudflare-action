@@ -84,11 +84,11 @@ export const getMiddlewareOptions = async (
 
   if (!parsed.success) {
     // If parsing fails, the API response structure is unexpected
-    debug(
-      `[middleware-config] Schema validation failed: ${JSON.stringify(parsed.error.format(), null, 2)}`,
+    const formattedError = JSON.stringify(parsed.error.format(), null, 2)
+    // Throw an error with validation details so users can identify the issue
+    throw new Error(
+      `API response validation failed for hostname "${hostname}". The middleware configuration contains invalid data:\n${formattedError}`
     )
-    // Return undefined to trigger the "could not find configuration" error
-    return undefined
   }
 
   const config = parsed.data.content[0]
