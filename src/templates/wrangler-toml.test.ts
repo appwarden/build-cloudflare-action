@@ -27,7 +27,7 @@ describe("wrangler-toml", () => {
       )
 
       // Check that all placeholders were replaced
-      expect(result).toContain('name = "appwarden-app_example_com"')
+      expect(result).toContain('name = "appwarden"')
       expect(result).toContain(
         'account_id = "1234567890abcdef1234567890abcdef"',
       )
@@ -102,8 +102,8 @@ describe("wrangler-toml", () => {
           middleware,
         )
 
-        // Hostname should be properly transformed (dots to underscores)
-        expect(result).toContain('name = "appwarden-app_example_com"')
+        // Worker name should be static
+        expect(result).toContain('name = "appwarden"')
         // Pattern should contain the original hostname
         expect(result).toContain('pattern = "*app.example.com/*"')
       })
