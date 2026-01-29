@@ -2,19 +2,9 @@ import { z } from "zod"
 import { getRootDomain } from "./parse-domain"
 import { ApiMiddlewareOptions, APIResponse } from "./types"
 
-// Schema for validating the API response structure
-const ApiMiddlewareOptionsSchema = z.object({
-  debug: z.boolean().optional(),
-  "lock-page-slug": z.string().optional(),
-  "csp-mode": z.enum(["disabled", "report-only", "enforced"]).optional(),
-  "csp-directives": z.record(z.string(), z.string()).optional(),
-})
-
 const MiddlewareConfigResponseSchema = z.object({
   content: z.array(
-    z.object({
-      options: ApiMiddlewareOptionsSchema,
-    }),
+    z.object({ options: z.any() }),
   ),
 })
 
