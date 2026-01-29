@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.1.14
+
+### Patch Changes
+
+- [`e2565d1`](https://github.com/appwarden/build-cloudflare-action/commit/e2565d16afcdb097d2da38d9741faade68be35b0) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Relax api response validation
+
 ## 1.1.13
 
 ### Patch Changes
