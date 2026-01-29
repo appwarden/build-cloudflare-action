@@ -29,7 +29,6 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "test:coverage:watch": "vitest --coverage",
     "format": "prettier --write .",
     "check:prettier": "prettier --check .",
     "check:types": "tsc --noEmit"
