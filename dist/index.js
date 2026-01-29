@@ -17676,17 +17676,9 @@ CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
 
 // src/utils.ts
-var ApiMiddlewareOptionsSchema = external_exports.object({
-  debug: external_exports.boolean().optional(),
-  "lock-page-slug": external_exports.string().optional(),
-  "csp-mode": external_exports.enum(["disabled", "report-only", "enforced"]).optional(),
-  "csp-directives": external_exports.record(external_exports.string(), external_exports.string()).optional()
-});
 var MiddlewareConfigResponseSchema = external_exports.object({
   content: external_exports.array(
-    external_exports.object({
-      options: ApiMiddlewareOptionsSchema
-    })
+    external_exports.object({ options: external_exports.any() })
   )
 });
 var isWellFormedToken = (token) => {
