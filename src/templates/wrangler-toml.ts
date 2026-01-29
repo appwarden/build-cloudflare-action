@@ -8,10 +8,6 @@ export const hydrateWranglerTemplate = (
   middleware: ApiMiddlewareOptions,
 ) =>
   template
-    .replaceAll(
-      "{{NAME}}",
-      `appwarden-${config.hostname.replace(/\./g, "_")}`,
-    )
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
     .replaceAll(
       "{{LOCK_PAGE_SLUG}}",
@@ -34,7 +30,7 @@ export const hydrateWranglerTemplate = (
 
 export const wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
-name = "{{NAME}}"
+name = "appwarden"
 account_id = "{{ACCOUNT_ID}}"
 compatibility_date = "2024-08-18"
 

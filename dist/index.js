@@ -17628,10 +17628,7 @@ var packageJsonTemplate = `
 
 // src/templates/wrangler-toml.ts
 var import_jsesc = __toESM(require_jsesc());
-var hydrateWranglerTemplate = (template, config2, middleware) => template.replaceAll(
-  "{{NAME}}",
-  `appwarden-${config2.hostname.replace(/\./g, "_")}`
-).replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
+var hydrateWranglerTemplate = (template, config2, middleware) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
   "{{LOCK_PAGE_SLUG}}",
   middleware?.["lock-page-slug"] ?? "/maintenance"
 ).replaceAll("{{PATTERN}}", `*${config2.hostname}/*`).replaceAll("{{ZONE_NAME}}", getRootDomain(config2.hostname)).replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled").replaceAll(
@@ -17643,7 +17640,7 @@ var hydrateWranglerTemplate = (template, config2, middleware) => template.replac
 );
 var wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
-name = "{{NAME}}"
+name = "appwarden"
 account_id = "{{ACCOUNT_ID}}"
 compatibility_date = "2024-08-18"
 
