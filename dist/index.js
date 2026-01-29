@@ -17748,7 +17748,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "1.4.0";
+var middlewareVersion = "1.4.3";
 var Debug = (debug2) => (msg) => {
   if (debug2) {
     console.log(msg);
