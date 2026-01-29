@@ -2,4 +2,4 @@
 "@appwarden/build-cloudflare-action": patch
 ---
 
-Improves debug logging
+Bump @appwarden/middleware to 1.4.3
