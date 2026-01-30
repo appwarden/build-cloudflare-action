@@ -1,5 +1,15 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.0
+
+### Minor Changes
+
+- [#89](https://github.com/appwarden/build-cloudflare-action/pull/89) [`29ac061`](https://github.com/appwarden/build-cloudflare-action/commit/29ac061f04b5b889f01f4ad864e6c0652ef86267) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Support multidomain deployment configurations
+
+### Patch Changes
+
+- [`c7d8f32`](https://github.com/appwarden/build-cloudflare-action/commit/c7d8f324c73a0c9f94600c6361c2341f9e0e4fa4) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Revert domain-scoped deployments because the middleware already supports it
+
 ## 1.1.14
 
 ### Patch Changes
