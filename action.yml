@@ -8,7 +8,7 @@ inputs:
   debug:
     description: Enable debug mode. Defaults to 'false'.
     required: false
-    default: 'false'
+    default: "false"
   hostnames:
     description: Comma-separated list of hostnames for your Appwarden-protected domains (e.g., "app.example.com,staging.example.com")
     required: true
@@ -19,5 +19,5 @@ inputs:
     description: Appwarden API token
     required: true
 runs:
-  using: node20
+  using: node24
   main: dist/index.js

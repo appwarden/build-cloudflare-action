@@ -1,11 +1,10 @@
 import { z } from "zod"
 import { getRootDomain } from "./parse-domain"
-import { ApiMiddlewareOptions, APIResponse } from "./types"
+import { HostnameMiddlewareOptions } from "./templates/generated-config"
+import { APIResponse } from "./types"
 
 const MiddlewareConfigResponseSchema = z.object({
-  content: z.array(
-    z.object({ options: z.any() }),
-  ),
+  content: z.array(z.object({ options: z.any() })),
 })
 
 export type DebugLogger = (msg: unknown) => void
@@ -19,7 +18,7 @@ export const getMiddlewareOptions = async (
   hostname: string,
   apiToken: string,
   debug: DebugLogger = () => {},
-): Promise<ApiMiddlewareOptions | undefined> => {
+): Promise<HostnameMiddlewareOptions | undefined> => {
   const rootDomain = getRootDomain(hostname)
 
   const url = new URL(
@@ -66,9 +65,7 @@ export const getMiddlewareOptions = async (
   }
 
   const result: unknown = await res.json()
-  debug(
-    `[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`,
-  )
+  debug(`[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`)
 
   const parsed = MiddlewareConfigResponseSchema.safeParse(result)
 
@@ -77,7 +74,7 @@ export const getMiddlewareOptions = async (
     const formattedError = JSON.stringify(parsed.error.format(), null, 2)
     // Throw an error with validation details so users can identify the issue
     throw new Error(
-      `API response validation failed for hostname "${hostname}". The middleware configuration contains invalid data:\n${formattedError}`
+      `API response validation failed for hostname "${hostname}". The middleware configuration contains invalid data:\n${formattedError}`,
     )
   }
 
