@@ -27,7 +27,7 @@ describe("index", () => {
 
     const mockConfig = {
       debug: false,
-      hostname: "app.example.com",
+      hostnames: "app.example.com",
       cloudflareAccountId: "1234567890abcdef1234567890abcdef",
       appwardenApiToken: "test-api-token-1234567890",
     }
@@ -47,8 +47,8 @@ describe("index", () => {
         switch (name) {
           case "debug":
             return "false"
-          case "hostname":
-            return mockConfig.hostname
+          case "hostnames":
+            return mockConfig.hostnames
           case "cloudflare-account-id":
             return mockConfig.cloudflareAccountId
           case "appwarden-api-token":
@@ -77,9 +77,9 @@ describe("index", () => {
       // Verify repository validation
       expect(mockFs.readdir).toHaveBeenCalledWith("..")
 
-      // Verify middleware options fetch
+      // Verify middleware options fetch (uses first hostname)
       expect(mockGetMiddlewareOptions).toHaveBeenCalledWith(
-        mockConfig.hostname,
+        "app.example.com",
         mockConfig.appwardenApiToken,
         expect.any(Function),
       )
@@ -93,7 +93,7 @@ describe("index", () => {
       )
 
       // Verify file generation
-      expect(mockFs.writeFile).toHaveBeenCalledTimes(3)
+      expect(mockFs.writeFile).toHaveBeenCalledTimes(4)
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         ".appwarden/generated-middleware/package.json",
         expect.stringContaining('"version": "1.0.0"'),
@@ -104,6 +104,10 @@ describe("index", () => {
       )
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         ".appwarden/generated-middleware/app.mjs",
+        expect.any(String),
+      )
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        ".appwarden/generated-middleware/generated-config.mjs",
         expect.any(String),
       )
 
@@ -134,7 +138,7 @@ describe("index", () => {
     it("should fail with invalid hostname", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostname":
+          case "hostnames":
             return "invalid-hostname"
           case "debug":
             return "false"
@@ -150,15 +154,15 @@ describe("index", () => {
       await main()
 
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        expect.stringContaining("hostname"),
+        expect.stringContaining("hostnames"),
       )
     })
 
     it("should fail with invalid cloudflare account id", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostname":
-            return mockConfig.hostname
+          case "hostnames":
+            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -180,8 +184,8 @@ describe("index", () => {
     it("should fail validation with empty appwarden api token", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostname":
-            return mockConfig.hostname
+          case "hostnames":
+            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -204,8 +208,8 @@ describe("index", () => {
     it("should fail validation with too short appwarden api token", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostname":
-            return mockConfig.hostname
+          case "hostnames":
+            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -270,7 +274,7 @@ describe("index", () => {
       await main()
 
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        `Could not find Appwarden middleware configuration for hostname: ${mockConfig.hostname}`,
+        `Could not find Appwarden middleware configuration for hostnames: ${mockConfig.hostnames}`,
       )
     })
 
@@ -279,8 +283,8 @@ describe("index", () => {
         switch (name) {
           case "debug":
             return "true"
-          case "hostname":
-            return mockConfig.hostname
+          case "hostnames":
+            return mockConfig.hostnames
           case "cloudflare-account-id":
             return mockConfig.cloudflareAccountId
           case "appwarden-api-token":
