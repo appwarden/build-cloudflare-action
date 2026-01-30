@@ -10,7 +10,6 @@ vi.stubGlobal("API_HOSTNAME", "https://bot-gateway.appwarden.io")
 describe("utils", () => {
   describe("getMiddlewareOptions", () => {
     const mockFetch = vi.fn()
-    const mockHostname = "test.example.com"
     const mockApiToken = "mock-api-token"
     const mockMiddlewareOptions: HostnameMiddlewareOptions = {
       "lock-page-slug": "/test-maintenance",
@@ -25,10 +24,12 @@ describe("utils", () => {
       // Setup global fetch mock
       global.fetch = mockFetch
 
-      // Default successful response
+      // Default successful response - API now returns hostname in each config item
       mockFetch.mockResolvedValue({
         json: async () => ({
-          content: [{ options: mockMiddlewareOptions }],
+          content: [
+            { hostname: "test.example.com", options: mockMiddlewareOptions },
+          ],
         }),
         headers: {
           get: () => "application/json",
@@ -42,19 +43,47 @@ describe("utils", () => {
     })
 
     it("should fetch middleware options successfully", async () => {
-      const result = await getMiddlewareOptions(mockHostname, mockApiToken)
+      const result = await getMiddlewareOptions(mockApiToken)
 
       // Verify fetch was called with the correct URL and headers
       expect(mockFetch).toHaveBeenCalledWith(expect.any(URL), {
         headers: { Authorization: mockApiToken },
       })
 
-      // Verify the URL contains the correct hostname (should be root domain)
+      // Verify the URL points to the middleware-config endpoint without hostname filter
       const fetchUrl = mockFetch.mock.calls[0][0].toString()
-      expect(fetchUrl).toContain(`monitorHostname=example.com`)
+      expect(fetchUrl).toContain("/v1/middleware-config")
 
-      // Verify the result matches the mock middleware options
-      expect(result).toEqual(mockMiddlewareOptions)
+      // Verify the result is a Map with the expected hostname and options
+      expect(result).toBeInstanceOf(Map)
+      expect(result.get("test.example.com")).toEqual(mockMiddlewareOptions)
+    })
+
+    it("should return map with multiple hostnames when API returns multiple configs", async () => {
+      const secondHostnameOptions: HostnameMiddlewareOptions = {
+        "lock-page-slug": "/other-maintenance",
+        "csp-mode": "report-only",
+      }
+
+      mockFetch.mockResolvedValue({
+        json: async () => ({
+          content: [
+            { hostname: "test.example.com", options: mockMiddlewareOptions },
+            { hostname: "staging.example.com", options: secondHostnameOptions },
+          ],
+        }),
+        headers: {
+          get: () => "application/json",
+        },
+        status: 200,
+      })
+
+      const result = await getMiddlewareOptions(mockApiToken)
+
+      expect(result).toBeInstanceOf(Map)
+      expect(result.size).toBe(2)
+      expect(result.get("test.example.com")).toEqual(mockMiddlewareOptions)
+      expect(result.get("staging.example.com")).toEqual(secondHostnameOptions)
     })
 
     it("should throw BAD_AUTH error when status is 401", async () => {
@@ -67,9 +96,9 @@ describe("utils", () => {
         json: async () => ({}),
       })
 
-      await expect(
-        getMiddlewareOptions(mockHostname, mockApiToken),
-      ).rejects.toThrow("BAD_AUTH")
+      await expect(getMiddlewareOptions(mockApiToken)).rejects.toThrow(
+        "BAD_AUTH",
+      )
     })
 
     it("should throw BAD_AUTH error when status is 403", async () => {
@@ -82,9 +111,9 @@ describe("utils", () => {
         json: async () => ({}),
       })
 
-      await expect(
-        getMiddlewareOptions(mockHostname, mockApiToken),
-      ).rejects.toThrow("BAD_AUTH")
+      await expect(getMiddlewareOptions(mockApiToken)).rejects.toThrow(
+        "BAD_AUTH",
+      )
     })
 
     // The implementation throws the custom error message if one is provided
@@ -100,12 +129,12 @@ describe("utils", () => {
         }),
       })
 
-      await expect(
-        getMiddlewareOptions(mockHostname, mockApiToken),
-      ).rejects.toThrow("Custom API error")
+      await expect(getMiddlewareOptions(mockApiToken)).rejects.toThrow(
+        "Custom API error",
+      )
     })
 
-    it("should return undefined when no middleware options are found", async () => {
+    it("should return empty map when no middleware options are found", async () => {
       // Mock fetch to return empty content
       mockFetch.mockResolvedValue({
         json: async () => ({
@@ -117,8 +146,9 @@ describe("utils", () => {
         status: 200,
       })
 
-      const result = await getMiddlewareOptions(mockHostname, mockApiToken)
-      expect(result).toBeUndefined()
+      const result = await getMiddlewareOptions(mockApiToken)
+      expect(result).toBeInstanceOf(Map)
+      expect(result.size).toBe(0)
     })
   })
 })
