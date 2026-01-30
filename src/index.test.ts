@@ -299,9 +299,15 @@ describe("index", () => {
       await main()
 
       // Verify debug messages were logged with categorical prefixes
-      expect(consoleSpy).toHaveBeenCalledWith("[repository] Validating repository")
-      expect(consoleSpy).toHaveBeenCalledWith("[repository] ✅ Validation complete")
-      expect(consoleSpy).toHaveBeenCalledWith("[config] Validating configuration")
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "[repository] Validating repository",
+      )
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "[repository] ✅ Validation complete",
+      )
+      expect(consoleSpy).toHaveBeenCalledWith(
+        "[config] Validating configuration",
+      )
 
       consoleSpy.mockRestore()
     })

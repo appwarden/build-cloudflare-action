@@ -29,9 +29,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier --write .",
+    "check:types": "tsc --noEmit",
     "check:prettier": "prettier --check .",
-    "check:types": "tsc --noEmit"
+    "check:ci": "pnpm check:types && pnpm check:prettier && pnpm build"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
