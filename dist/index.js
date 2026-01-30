@@ -17404,7 +17404,7 @@ var packageJsonTemplate = `
 // src/templates/wrangler-toml.ts
 var generateRoutes = (hostnames, env) => hostnames.map(
   (hostname3) => `[[env.${env}.routes]]
-pattern = "*${hostname3}*"
+pattern = "${hostname3}/*"
 zone_name = "${getRootDomain(hostname3)}"`
 ).join("\n\n");
 var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
