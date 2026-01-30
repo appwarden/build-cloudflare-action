@@ -65,7 +65,9 @@ export async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`[middleware-config] Fetching middleware configuration for all hostnames`)
+  debug(
+    `[middleware-config] Fetching middleware configuration for all hostnames`,
+  )
 
   // Fetch middleware options for all hostnames
   const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()

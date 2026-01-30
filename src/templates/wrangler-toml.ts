@@ -1,8 +1,8 @@
 import { getRootDomain } from "../parse-domain"
 import { Config } from "../types"
 
-const generateRoutes = (hostnames: string[], env: string) => 
-   hostnames
+const generateRoutes = (hostnames: string[], env: string) =>
+  hostnames
     .map(
       (hostname) =>
         `[[env.${env}.routes]]
@@ -14,7 +14,10 @@ zone_name = "${getRootDomain(hostname)}"`,
 export const hydrateWranglerTemplate = (template: string, config: Config) =>
   template
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
-    .replaceAll("{{STAGING_ROUTES}}", generateRoutes(config.hostnames, "staging"))
+    .replaceAll(
+      "{{STAGING_ROUTES}}",
+      generateRoutes(config.hostnames, "staging"),
+    )
     .replaceAll(
       "{{PRODUCTION_ROUTES}}",
       generateRoutes(config.hostnames, "production"),
