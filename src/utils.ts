@@ -1,10 +1,18 @@
 import { z } from "zod"
-import { getRootDomain } from "./parse-domain"
 import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { APIResponse } from "./types"
 
+const MiddlewareConfigItemSchema = z.object({
+  hostname: z.string(),
+  options: z.object({
+    "lock-page-slug": z.string().optional(),
+    "csp-mode": z.enum(["disabled", "report-only", "enforced"]).optional(),
+    "csp-directives": z.record(z.string(), z.string()).optional(),
+  }),
+})
+
 const MiddlewareConfigResponseSchema = z.object({
-  content: z.array(z.object({ options: z.any() })),
+  content: z.array(MiddlewareConfigItemSchema),
 })
 
 export type DebugLogger = (msg: unknown) => void
@@ -14,15 +22,16 @@ const isWellFormedToken = (token: string): boolean => {
   return typeof token === "string" && token.length >= 16
 }
 
+/**
+ * Fetches all middleware configurations for the account.
+ * Returns a map of hostname -> middleware options.
+ */
 export const getMiddlewareOptions = async (
-  hostname: string,
   apiToken: string,
   debug: DebugLogger = () => {},
-): Promise<HostnameMiddlewareOptions | undefined> => {
-  const rootDomain = getRootDomain(hostname)
-
+): Promise<Map<string, HostnameMiddlewareOptions>> => {
   const url = new URL(
-    `/v1/middleware-config?monitorHostname=${rootDomain}`,
+    `/v1/middleware-config`,
     // @ts-expect-error tsup config
     API_HOSTNAME,
   )
@@ -40,9 +49,7 @@ export const getMiddlewareOptions = async (
   } catch (error) {
     // Network-level errors (DNS, connection refused, etc.)
     const message = error instanceof Error ? error.message : String(error)
-    throw new Error(
-      `Failed to fetch middleware configuration for hostname "${hostname}": ${message}`,
-    )
+    throw new Error(`Failed to fetch middleware configuration: ${message}`)
   }
 
   debug(`[middleware-config] Response status: ${res.status}`)
@@ -74,10 +81,15 @@ export const getMiddlewareOptions = async (
     const formattedError = JSON.stringify(parsed.error.format(), null, 2)
     // Throw an error with validation details so users can identify the issue
     throw new Error(
-      `API response validation failed for hostname "${hostname}". The middleware configuration contains invalid data:\n${formattedError}`,
+      `API response validation failed. The middleware configuration contains invalid data:\n${formattedError}`,
     )
   }
 
-  const config = parsed.data.content[0]
-  return config ? config.options : undefined
+  const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
+
+  for (const item of parsed.data.content) {
+    middlewareOptionsMap.set(item.hostname, item.options)
+  }
+
+  return middlewareOptionsMap
 }
