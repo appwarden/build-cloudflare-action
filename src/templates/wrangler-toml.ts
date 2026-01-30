@@ -6,7 +6,7 @@ const generateRoutes = (hostnames: string[], env: string) =>
     .map(
       (hostname) =>
         `[[env.${env}.routes]]
-pattern = "*${hostname}*"
+pattern = "${hostname}/*"
 zone_name = "${getRootDomain(hostname)}"`,
     )
     .join("\n\n")
