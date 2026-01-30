@@ -4,6 +4,7 @@ import { getRootDomain } from "./parse-domain"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
+  hydrateGeneratedConfig,
   hydratePackageJson,
   hydrateWranglerTemplate,
   packageJsonTemplate,
@@ -49,7 +50,7 @@ export async function main() {
 
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
-    hostname: core.getInput("hostname"),
+    hostnames: core.getInput("hostnames"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
     appwardenApiToken: core.getInput("appwarden-api-token"),
   })
@@ -64,38 +65,48 @@ export async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`[middleware-config] Fetching middleware configuration`)
+  debug(`[middleware-config] Fetching middleware configuration for all hostnames`)
 
-  let middlewareOptions: ApiMiddlewareOptions | undefined
-  try {
-    middlewareOptions = await getMiddlewareOptions(
-      config.hostname,
-      config.appwardenApiToken,
-      debug,
-    )
-  } catch (error) {
-    if (error instanceof Error) {
-      return core.setFailed(
-        error.message === "BAD_AUTH"
-          ? "Invalid Appwarden API token"
-          : error.message === "no_domain_configurations"
-            ? `The hostname (${getRootDomain(config.hostname)}) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`
-            : error.message,
+  // Fetch middleware options for all hostnames
+  const middlewareOptionsMap = new Map<string, ApiMiddlewareOptions>()
+  const primaryHostname = config.hostnames[0]
+
+  for (const hostname of config.hostnames) {
+    try {
+      const options = await getMiddlewareOptions(
+        hostname,
+        config.appwardenApiToken,
+        debug,
       )
-    }
+      if (options) {
+        middlewareOptionsMap.set(hostname, options)
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        return core.setFailed(
+          error.message === "BAD_AUTH"
+            ? "Invalid Appwarden API token"
+            : error.message === "no_domain_configurations"
+              ? `The hostname (${getRootDomain(hostname)}) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`
+              : error.message,
+        )
+      }
 
-    return core.setFailed(String(error))
+      return core.setFailed(String(error))
+    }
   }
 
-  if (!middlewareOptions) {
+  // Ensure at least the primary hostname has configuration
+  const primaryMiddlewareOptions = middlewareOptionsMap.get(primaryHostname)
+  if (!primaryMiddlewareOptions) {
     return core.setFailed(
-      `Could not find Appwarden middleware configuration for hostname: ${config.hostname}`,
+      `Could not find Appwarden middleware configuration for hostnames: ${config.hostnames.join(", ")}`,
     )
   }
 
   debug(
-    `[middleware-config] ✅ Fetch complete \n ${JSON.stringify(
-      middlewareOptions,
+    `[middleware-config] ✅ Fetch complete for ${middlewareOptionsMap.size} hostname(s)\n ${JSON.stringify(
+      Object.fromEntries(middlewareOptionsMap),
       null,
       2,
     )}`,
@@ -113,9 +124,17 @@ export async function main() {
     ],
     [
       "wrangler.toml",
-      hydrateWranglerTemplate(wranglerFileTemplate, config, middlewareOptions),
+      hydrateWranglerTemplate(
+        wranglerFileTemplate,
+        config,
+        primaryMiddlewareOptions,
+      ),
     ],
     ["app.mjs", appTemplate],
+    [
+      "generated-config.mjs",
+      hydrateGeneratedConfig(config.hostnames, middlewareOptionsMap),
+    ],
   ]
 
   for (const [fileName, fileContent] of projectFiles) {

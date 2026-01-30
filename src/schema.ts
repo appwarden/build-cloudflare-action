@@ -34,11 +34,32 @@ const ApiTokenSchema = z
       "appwardenApiToken appears to be invalid (too short). Please check your API token.",
   })
 
+// Schema for parsing comma-separated hostnames into an array
+const HostnamesSchema = z
+  .string()
+  .min(1, { message: "At least one hostname is required" })
+  .transform((val) =>
+    val
+      .split(",")
+      .map((h) => h.trim())
+      .filter((h) => h.length > 0),
+  )
+  .refine((hostnames) => hostnames.length > 0, {
+    message: "At least one hostname is required",
+  })
+  .refine(
+    async (hostnames) => {
+      const results = await Promise.all(hostnames.map((h) => isValidHostname(h)))
+      return results.every((r) => Boolean(r))
+    },
+    {
+      message:
+        "All hostnames must be valid domain names. (e.g. `app.example.com,staging.example.com`)",
+    },
+  )
+
 export const ConfigSchema = z.object({
-  hostname: z.string().refine((val) => isValidHostname(val), {
-    message: "`hostname` must be a valid domain name. (e.g. `app.example.com`)",
-    path: ["hostname"],
-  }),
+  hostnames: HostnamesSchema,
   cloudflareAccountId: CloudflareAccountIdSchema,
   appwardenApiToken: ApiTokenSchema,
   debug: OptionalBooleanSchema.default(false),
