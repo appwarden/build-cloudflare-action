@@ -9,8 +9,8 @@ inputs:
     description: Enable debug mode. Defaults to 'false'.
     required: false
     default: 'false'
-  hostname:
-    description: The hostname of your Appwarden-protected domain
+  hostnames:
+    description: Comma-separated list of hostnames for your Appwarden-protected domains (e.g., "app.example.com,staging.example.com")
     required: true
   cloudflare-account-id:
     description: Cloudflare account id
