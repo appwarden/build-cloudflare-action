@@ -29,9 +29,9 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "format": "prettier --write .",
+    "check:types": "tsc --noEmit",
     "check:prettier": "prettier --check .",
-    "check:types": "tsc --noEmit"
+    "check:ci": "npm run check:types && npm run check:prettier"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",

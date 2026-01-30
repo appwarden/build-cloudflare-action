@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { ApiMiddlewareOptions } from "./types"
+import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { getMiddlewareOptions } from "./utils"
 
 // Mock global fetch
@@ -12,8 +12,7 @@ describe("utils", () => {
     const mockFetch = vi.fn()
     const mockHostname = "test.example.com"
     const mockApiToken = "mock-api-token"
-    const mockMiddlewareOptions: ApiMiddlewareOptions = {
-      debug: false,
+    const mockMiddlewareOptions: HostnameMiddlewareOptions = {
       "lock-page-slug": "/test-maintenance",
       "csp-mode": "enforced",
       "csp-directives": { "default-src": "'self'" },

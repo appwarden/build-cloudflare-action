@@ -35,7 +35,4 @@ export type Config = z.infer<typeof ConfigSchema>
 
 export type ApiMiddlewareOptions = {
   debug?: boolean
-  "lock-page-slug"?: string
-  "csp-mode"?: "disabled" | "report-only" | "enforced"
-  "csp-directives"?: Record<string, string>
 }
