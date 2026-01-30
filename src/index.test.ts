@@ -1,7 +1,7 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { ApiMiddlewareOptions } from "./types"
+import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { getMiddlewareOptions } from "./utils"
 
 // Mock dependencies
@@ -32,8 +32,7 @@ describe("index", () => {
       appwardenApiToken: "test-api-token-1234567890",
     }
 
-    const mockMiddlewareOptions: ApiMiddlewareOptions = {
-      debug: false,
+    const mockMiddlewareOptions: HostnameMiddlewareOptions = {
       "lock-page-slug": "/maintenance",
       "csp-mode": "enforced",
       "csp-directives": { "default-src": "'self'" },
