@@ -1,17 +1,18 @@
 import { describe, expect, it } from "vitest"
-import { Config } from "../types"
-import { hydrateWranglerTemplate, wranglerFileTemplate } from "./wrangler-toml"
+import {
+  hydrateWranglerTemplate,
+  WranglerTemplateConfig,
+  wranglerFileTemplate,
+} from "./wrangler-toml"
 
 // No mocks - using actual implementations
 
 describe("wrangler-toml", () => {
   describe("hydrateWranglerTemplate", () => {
     it("should replace all placeholders in the template", () => {
-      const config: Config = {
+      const config: WranglerTemplateConfig = {
         hostnames: ["app.example.com"],
         cloudflareAccountId: "1234567890abcdef1234567890abcdef",
-        appwardenApiToken: "test-api-token-12345",
-        debug: false,
       }
 
       const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -28,13 +29,39 @@ describe("wrangler-toml", () => {
       expect(result).toContain("[[env.production.routes]]")
     })
 
-    describe("security: input sanitization", () => {
-      it("should safely handle hostnames with special TOML characters", () => {
-        const config: Config = {
+    describe("API_HOSTNAME environment variable", () => {
+      it("should include staging API_HOSTNAME", () => {
+        const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
-          appwardenApiToken: "test-api-token-12345",
-          debug: false,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.staging.vars]")
+        expect(result).toContain(
+          'API_HOSTNAME = "https://staging-api.appwarden.io"',
+        )
+      })
+
+      it("should include production API_HOSTNAME", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.production.vars]")
+        expect(result).toContain('API_HOSTNAME = "https://api.appwarden.io"')
+      })
+    })
+
+    describe("security: input sanitization", () => {
+      it("should safely handle hostnames with special TOML characters", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -48,11 +75,9 @@ describe("wrangler-toml", () => {
       it("should validate cloudflareAccountId is used safely in template", () => {
         // This test ensures the account ID is used as-is without injection risk
         // The schema now validates it's only hex characters
-        const config: Config = {
+        const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "abcdef1234567890abcdef1234567890",
-          appwardenApiToken: "test-api-token-12345",
-          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -65,11 +90,9 @@ describe("wrangler-toml", () => {
 
     describe("multiple hostnames", () => {
       it("should generate multiple route entries for multiple hostnames", () => {
-        const config: Config = {
+        const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com", "staging.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
-          appwardenApiToken: "test-api-token-12345",
-          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -97,11 +120,9 @@ describe("wrangler-toml", () => {
       })
 
       it("should handle hostnames with different root domains", () => {
-        const config: Config = {
+        const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com", "app.otherdomain.org"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
-          appwardenApiToken: "test-api-token-12345",
-          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -115,12 +136,10 @@ describe("wrangler-toml", () => {
         expect(result).toContain('zone_name = "otherdomain.org"')
       })
 
-      it("should work with a single hostname (backward compatibility)", () => {
-        const config: Config = {
+      it("should work with a single hostname", () => {
+        const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
-          appwardenApiToken: "test-api-token-12345",
-          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
