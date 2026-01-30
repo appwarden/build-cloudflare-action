@@ -21,7 +21,7 @@ describe("wrangler-toml", () => {
       expect(result).toContain(
         'account_id = "1234567890abcdef1234567890abcdef"',
       )
-      expect(result).toContain('pattern = "*app.example.com/*"')
+      expect(result).toContain('pattern = "*app.example.com*"')
       expect(result).toContain('zone_name = "example.com"')
       // Check for route array syntax
       expect(result).toContain("[[env.staging.routes]]")
@@ -42,7 +42,7 @@ describe("wrangler-toml", () => {
         // Worker name should be static
         expect(result).toContain('name = "appwarden"')
         // Pattern should contain the original hostname
-        expect(result).toContain('pattern = "*app.example.com/*"')
+        expect(result).toContain('pattern = "*app.example.com*"')
       })
 
       it("should validate cloudflareAccountId is used safely in template", () => {
@@ -76,8 +76,8 @@ describe("wrangler-toml", () => {
 
         // Check for multiple staging routes
         expect(result).toContain("[[env.staging.routes]]")
-        expect(result).toContain('pattern = "*app.example.com/*"')
-        expect(result).toContain('pattern = "*staging.example.com/*"')
+        expect(result).toContain('pattern = "*app.example.com*"')
+        expect(result).toContain('pattern = "*staging.example.com*"')
 
         // Check for multiple production routes
         expect(result).toContain("[[env.production.routes]]")
@@ -107,8 +107,8 @@ describe("wrangler-toml", () => {
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
 
         // Check both hostnames are included
-        expect(result).toContain('pattern = "*app.example.com/*"')
-        expect(result).toContain('pattern = "*app.otherdomain.org/*"')
+        expect(result).toContain('pattern = "*app.example.com*"')
+        expect(result).toContain('pattern = "*app.otherdomain.org*"')
 
         // Check both zone_names are included
         expect(result).toContain('zone_name = "example.com"')
@@ -128,7 +128,7 @@ describe("wrangler-toml", () => {
         // Should still use route array syntax even for single hostname
         expect(result).toContain("[[env.staging.routes]]")
         expect(result).toContain("[[env.production.routes]]")
-        expect(result).toContain('pattern = "*app.example.com/*"')
+        expect(result).toContain('pattern = "*app.example.com*"')
         expect(result).toContain('zone_name = "example.com"')
 
         // Should have exactly one route per environment
