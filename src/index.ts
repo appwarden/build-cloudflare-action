@@ -4,13 +4,13 @@ import { getRootDomain } from "./parse-domain"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
+  HostnameMiddlewareOptions,
   hydrateGeneratedConfig,
   hydratePackageJson,
   hydrateWranglerTemplate,
   packageJsonTemplate,
   wranglerFileTemplate,
 } from "./templates"
-import { ApiMiddlewareOptions } from "./types"
 import { getMiddlewareOptions } from "./utils"
 
 // @ts-expect-error tsup config
@@ -65,10 +65,12 @@ export async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`[middleware-config] Fetching middleware configuration for all hostnames`)
+  debug(
+    `[middleware-config] Fetching middleware configuration for all hostnames`,
+  )
 
   // Fetch middleware options for all hostnames
-  const middlewareOptionsMap = new Map<string, ApiMiddlewareOptions>()
+  const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
   const primaryHostname = config.hostnames[0]
 
   for (const hostname of config.hostnames) {
@@ -122,14 +124,7 @@ export async function main() {
       "package.json",
       hydratePackageJson(packageJsonTemplate, { version: middlewareVersion }),
     ],
-    [
-      "wrangler.toml",
-      hydrateWranglerTemplate(
-        wranglerFileTemplate,
-        config,
-        primaryMiddlewareOptions,
-      ),
-    ],
+    ["wrangler.toml", hydrateWranglerTemplate(wranglerFileTemplate, config)],
     ["app.mjs", appTemplate],
     [
       "generated-config.mjs",

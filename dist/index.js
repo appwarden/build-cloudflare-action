@@ -3013,282 +3013,6 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
   }
 });
 
-// node_modules/jsesc/jsesc.js
-var require_jsesc = __commonJS({
-  "node_modules/jsesc/jsesc.js"(exports2, module2) {
-    "use strict";
-    var object2 = {};
-    var hasOwnProperty = object2.hasOwnProperty;
-    var forOwn = (object3, callback) => {
-      for (const key in object3) {
-        if (hasOwnProperty.call(object3, key)) {
-          callback(key, object3[key]);
-        }
-      }
-    };
-    var extend2 = (destination, source) => {
-      if (!source) {
-        return destination;
-      }
-      forOwn(source, (key, value) => {
-        destination[key] = value;
-      });
-      return destination;
-    };
-    var forEach = (array2, callback) => {
-      const length = array2.length;
-      let index = -1;
-      while (++index < length) {
-        callback(array2[index]);
-      }
-    };
-    var fourHexEscape = (hex3) => {
-      return "\\u" + ("0000" + hex3).slice(-4);
-    };
-    var hexadecimal = (code, lowercase2) => {
-      let hexadecimal2 = code.toString(16);
-      if (lowercase2) return hexadecimal2;
-      return hexadecimal2.toUpperCase();
-    };
-    var toString2 = object2.toString;
-    var isArray = Array.isArray;
-    var isBuffer = (value) => {
-      return typeof Buffer === "function" && Buffer.isBuffer(value);
-    };
-    var isObject2 = (value) => {
-      return toString2.call(value) == "[object Object]";
-    };
-    var isString = (value) => {
-      return typeof value == "string" || toString2.call(value) == "[object String]";
-    };
-    var isNumber = (value) => {
-      return typeof value == "number" || toString2.call(value) == "[object Number]";
-    };
-    var isBigInt = (value) => {
-      return typeof value == "bigint";
-    };
-    var isFunction = (value) => {
-      return typeof value == "function";
-    };
-    var isMap = (value) => {
-      return toString2.call(value) == "[object Map]";
-    };
-    var isSet = (value) => {
-      return toString2.call(value) == "[object Set]";
-    };
-    var singleEscapes = {
-      "\\": "\\\\",
-      "\b": "\\b",
-      "\f": "\\f",
-      "\n": "\\n",
-      "\r": "\\r",
-      "	": "\\t"
-      // `\v` is omitted intentionally, because in IE < 9, '\v' == 'v'.
-      // '\v': '\\x0B'
-    };
-    var regexSingleEscape = /[\\\b\f\n\r\t]/;
-    var regexDigit = /[0-9]/;
-    var regexWhitespace = /[\xA0\u1680\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]/;
-    var escapeEverythingRegex = /([\uD800-\uDBFF][\uDC00-\uDFFF])|([\uD800-\uDFFF])|(['"`])|[^]/g;
-    var escapeNonAsciiRegex = /([\uD800-\uDBFF][\uDC00-\uDFFF])|([\uD800-\uDFFF])|(['"`])|[^ !#-&\(-\[\]-_a-~]/g;
-    var jsesc2 = (argument, options2) => {
-      const increaseIndentation = () => {
-        oldIndent = indent;
-        ++options2.indentLevel;
-        indent = options2.indent.repeat(options2.indentLevel);
-      };
-      const defaults = {
-        "escapeEverything": false,
-        "minimal": false,
-        "isScriptContext": false,
-        "quotes": "single",
-        "wrap": false,
-        "es6": false,
-        "json": false,
-        "compact": true,
-        "lowercaseHex": false,
-        "numbers": "decimal",
-        "indent": "	",
-        "indentLevel": 0,
-        "__inline1__": false,
-        "__inline2__": false
-      };
-      const json2 = options2 && options2.json;
-      if (json2) {
-        defaults.quotes = "double";
-        defaults.wrap = true;
-      }
-      options2 = extend2(defaults, options2);
-      if (options2.quotes != "single" && options2.quotes != "double" && options2.quotes != "backtick") {
-        options2.quotes = "single";
-      }
-      const quote = options2.quotes == "double" ? '"' : options2.quotes == "backtick" ? "`" : "'";
-      const compact = options2.compact;
-      const lowercaseHex = options2.lowercaseHex;
-      let indent = options2.indent.repeat(options2.indentLevel);
-      let oldIndent = "";
-      const inline1 = options2.__inline1__;
-      const inline2 = options2.__inline2__;
-      const newLine = compact ? "" : "\n";
-      let result;
-      let isEmpty = true;
-      const useBinNumbers = options2.numbers == "binary";
-      const useOctNumbers = options2.numbers == "octal";
-      const useDecNumbers = options2.numbers == "decimal";
-      const useHexNumbers = options2.numbers == "hexadecimal";
-      if (json2 && argument && isFunction(argument.toJSON)) {
-        argument = argument.toJSON();
-      }
-      if (!isString(argument)) {
-        if (isMap(argument)) {
-          if (argument.size == 0) {
-            return "new Map()";
-          }
-          if (!compact) {
-            options2.__inline1__ = true;
-            options2.__inline2__ = false;
-          }
-          return "new Map(" + jsesc2(Array.from(argument), options2) + ")";
-        }
-        if (isSet(argument)) {
-          if (argument.size == 0) {
-            return "new Set()";
-          }
-          return "new Set(" + jsesc2(Array.from(argument), options2) + ")";
-        }
-        if (isBuffer(argument)) {
-          if (argument.length == 0) {
-            return "Buffer.from([])";
-          }
-          return "Buffer.from(" + jsesc2(Array.from(argument), options2) + ")";
-        }
-        if (isArray(argument)) {
-          result = [];
-          options2.wrap = true;
-          if (inline1) {
-            options2.__inline1__ = false;
-            options2.__inline2__ = true;
-          }
-          if (!inline2) {
-            increaseIndentation();
-          }
-          forEach(argument, (value) => {
-            isEmpty = false;
-            if (inline2) {
-              options2.__inline2__ = false;
-            }
-            result.push(
-              (compact || inline2 ? "" : indent) + jsesc2(value, options2)
-            );
-          });
-          if (isEmpty) {
-            return "[]";
-          }
-          if (inline2) {
-            return "[" + result.join(", ") + "]";
-          }
-          return "[" + newLine + result.join("," + newLine) + newLine + (compact ? "" : oldIndent) + "]";
-        } else if (isNumber(argument) || isBigInt(argument)) {
-          if (json2) {
-            return JSON.stringify(Number(argument));
-          }
-          let result2;
-          if (useDecNumbers) {
-            result2 = String(argument);
-          } else if (useHexNumbers) {
-            let hexadecimal2 = argument.toString(16);
-            if (!lowercaseHex) {
-              hexadecimal2 = hexadecimal2.toUpperCase();
-            }
-            result2 = "0x" + hexadecimal2;
-          } else if (useBinNumbers) {
-            result2 = "0b" + argument.toString(2);
-          } else if (useOctNumbers) {
-            result2 = "0o" + argument.toString(8);
-          }
-          if (isBigInt(argument)) {
-            return result2 + "n";
-          }
-          return result2;
-        } else if (isBigInt(argument)) {
-          if (json2) {
-            return JSON.stringify(Number(argument));
-          }
-          return argument + "n";
-        } else if (!isObject2(argument)) {
-          if (json2) {
-            return JSON.stringify(argument) || "null";
-          }
-          return String(argument);
-        } else {
-          result = [];
-          options2.wrap = true;
-          increaseIndentation();
-          forOwn(argument, (key, value) => {
-            isEmpty = false;
-            result.push(
-              (compact ? "" : indent) + jsesc2(key, options2) + ":" + (compact ? "" : " ") + jsesc2(value, options2)
-            );
-          });
-          if (isEmpty) {
-            return "{}";
-          }
-          return "{" + newLine + result.join("," + newLine) + newLine + (compact ? "" : oldIndent) + "}";
-        }
-      }
-      const regex = options2.escapeEverything ? escapeEverythingRegex : escapeNonAsciiRegex;
-      result = argument.replace(regex, (char, pair, lone, quoteChar, index, string4) => {
-        if (pair) {
-          if (options2.minimal) return pair;
-          const first = pair.charCodeAt(0);
-          const second = pair.charCodeAt(1);
-          if (options2.es6) {
-            const codePoint = (first - 55296) * 1024 + second - 56320 + 65536;
-            const hex4 = hexadecimal(codePoint, lowercaseHex);
-            return "\\u{" + hex4 + "}";
-          }
-          return fourHexEscape(hexadecimal(first, lowercaseHex)) + fourHexEscape(hexadecimal(second, lowercaseHex));
-        }
-        if (lone) {
-          return fourHexEscape(hexadecimal(lone.charCodeAt(0), lowercaseHex));
-        }
-        if (char == "\0" && !json2 && !regexDigit.test(string4.charAt(index + 1))) {
-          return "\\0";
-        }
-        if (quoteChar) {
-          if (quoteChar == quote || options2.escapeEverything) {
-            return "\\" + quoteChar;
-          }
-          return quoteChar;
-        }
-        if (regexSingleEscape.test(char)) {
-          return singleEscapes[char];
-        }
-        if (options2.minimal && !regexWhitespace.test(char)) {
-          return char;
-        }
-        const hex3 = hexadecimal(char.charCodeAt(0), lowercaseHex);
-        if (json2 || hex3.length > 2) {
-          return fourHexEscape(hex3);
-        }
-        return "\\x" + ("00" + hex3).slice(-2);
-      });
-      if (quote == "`") {
-        result = result.replace(/\$\{/g, "\\${");
-      }
-      if (options2.isScriptContext) {
-        result = result.replace(/<\/(script|style)/gi, "<\\/$1").replace(/<!--/g, json2 ? "\\u003C!--" : "\\x3C!--");
-      }
-      if (options2.wrap) {
-        result = quote + result + quote;
-      }
-      return result;
-    };
-    jsesc2.version = "3.0.2";
-    module2.exports = jsesc2;
-  }
-});
-
 // src/index.ts
 var index_exports = {};
 __export(index_exports, {
@@ -17583,7 +17307,9 @@ var HostnamesSchema = external_exports.string().min(1, { message: "At least one 
   message: "At least one hostname is required"
 }).refine(
   async (hostnames) => {
-    const results = await Promise.all(hostnames.map((h) => isValidHostname(h)));
+    const results = await Promise.all(
+      hostnames.map((h) => isValidHostname(h))
+    );
     return results.every((r) => Boolean(r));
   },
   {
@@ -17608,25 +17334,17 @@ import { config } from './generated-config.mjs'
 export default {
   fetch: withAppwarden((context) => ({
     debug: context.env.DEBUG,
-    lockPageSlug: context.env.LOCK_PAGE_SLUG,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
-    ...(config.appwarden && { multidomainConfig: config.appwarden }),
+    multidomainConfig: config.appwarden,
     middleware: {
       before: [
-        ...(config.csp
-          ? Object.entries(config.csp).map(([hostname, cspConfig]) =>
-              useContentSecurityPolicy({
-                hostname,
-                mode: cspConfig.mode,
-                directives: cspConfig.directives,
-              })
-            )
-          : [
-              useContentSecurityPolicy({
-                mode: context.env.CSP_MODE,
-                directives: context.env.CSP_DIRECTIVES,
-              }),
-            ]),
+        ...Object.entries(config.csp || {}).map(([hostname, cspConfig]) =>
+          useContentSecurityPolicy({
+            hostname,
+            mode: cspConfig.mode,
+            directives: cspConfig.directives,
+          })
+        ),
       ],
     },
   })),
@@ -17684,23 +17402,17 @@ var packageJsonTemplate = `
 `;
 
 // src/templates/wrangler-toml.ts
-var import_jsesc = __toESM(require_jsesc());
-var generateRoutes = (hostnames, env) => {
-  return hostnames.map(
-    (hostname3) => `[[env.${env}.routes]]
-pattern = "*${hostname3}/*"
+var generateRoutes = (hostnames, env) => hostnames.map(
+  (hostname3) => `[[env.${env}.routes]]
+pattern = "*${hostname3}*"
 zone_name = "${getRootDomain(hostname3)}"`
-  ).join("\n\n");
-};
-var hydrateWranglerTemplate = (template, config2, middleware) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
-  "{{LOCK_PAGE_SLUG}}",
-  middleware?.["lock-page-slug"] ?? "/maintenance"
-).replaceAll("{{STAGING_ROUTES}}", generateRoutes(config2.hostnames, "staging")).replaceAll("{{PRODUCTION_ROUTES}}", generateRoutes(config2.hostnames, "production")).replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled").replaceAll(
-  "{{CSP_DIRECTIVES}}",
-  middleware?.["csp-directives"] ? (0, import_jsesc.default)(
-    typeof middleware?.["csp-directives"] === "object" ? JSON.stringify(middleware["csp-directives"]) : middleware["csp-directives"],
-    { quotes: "double" }
-  ) : ""
+).join("\n\n");
+var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
+  "{{STAGING_ROUTES}}",
+  generateRoutes(config2.hostnames, "staging")
+).replaceAll(
+  "{{PRODUCTION_ROUTES}}",
+  generateRoutes(config2.hostnames, "production")
 );
 var wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
@@ -17719,24 +17431,12 @@ head_sampling_rate = 1
 
 {{STAGING_ROUTES}}
 
-[env.staging.vars]
-CSP_MODE = "{{CSP_MODE}}"
-LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
-CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
-
 {{PRODUCTION_ROUTES}}
-
-[env.production.vars]
-CSP_MODE = "{{CSP_MODE}}"
-LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
-CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `;
 
 // src/utils.ts
 var MiddlewareConfigResponseSchema = external_exports.object({
-  content: external_exports.array(
-    external_exports.object({ options: external_exports.any() })
-  )
+  content: external_exports.array(external_exports.object({ options: external_exports.any() }))
 });
 var isWellFormedToken = (token) => {
   return typeof token === "string" && token.length >= 16;
@@ -17781,9 +17481,7 @@ var getMiddlewareOptions = async (hostname3, apiToken, debug2 = () => {
     throw new Error("BAD_AUTH");
   }
   const result = await res.json();
-  debug2(
-    `[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`
-  );
+  debug2(`[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`);
   const parsed = MiddlewareConfigResponseSchema.safeParse(result);
   if (!parsed.success) {
     const formattedError = JSON.stringify(parsed.error.format(), null, 2);
@@ -17835,7 +17533,9 @@ async function main() {
   const config2 = maybeConfig.data;
   debug(`[config] \u2705 Validation complete`);
   const middlewareDir = ".appwarden/generated-middleware";
-  debug(`[middleware-config] Fetching middleware configuration for all hostnames`);
+  debug(
+    `[middleware-config] Fetching middleware configuration for all hostnames`
+  );
   const middlewareOptionsMap = /* @__PURE__ */ new Map();
   const primaryHostname = config2.hostnames[0];
   for (const hostname3 of config2.hostnames) {
@@ -17878,14 +17578,7 @@ async function main() {
       "package.json",
       hydratePackageJson(packageJsonTemplate, { version: middlewareVersion })
     ],
-    [
-      "wrangler.toml",
-      hydrateWranglerTemplate(
-        wranglerFileTemplate,
-        config2,
-        primaryMiddlewareOptions
-      )
-    ],
+    ["wrangler.toml", hydrateWranglerTemplate(wranglerFileTemplate, config2)],
     ["app.mjs", appTemplate],
     [
       "generated-config.mjs",

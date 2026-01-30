@@ -49,7 +49,9 @@ const HostnamesSchema = z
   })
   .refine(
     async (hostnames) => {
-      const results = await Promise.all(hostnames.map((h) => isValidHostname(h)))
+      const results = await Promise.all(
+        hostnames.map((h) => isValidHostname(h)),
+      )
       return results.every((r) => Boolean(r))
     },
     {
