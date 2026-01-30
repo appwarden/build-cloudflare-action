@@ -1,42 +1,23 @@
-import jsesc from "jsesc"
 import { getRootDomain } from "../parse-domain"
-import { ApiMiddlewareOptions, Config } from "../types"
+import { Config } from "../types"
 
-const generateRoutes = (hostnames: string[], env: string): string => {
-  return hostnames
+const generateRoutes = (hostnames: string[], env: string) => 
+   hostnames
     .map(
       (hostname) =>
         `[[env.${env}.routes]]
-pattern = "*${hostname}/*"
+pattern = "*${hostname}*"
 zone_name = "${getRootDomain(hostname)}"`,
     )
     .join("\n\n")
-}
 
-export const hydrateWranglerTemplate = (
-  template: string,
-  config: Config,
-  middleware: ApiMiddlewareOptions,
-) =>
+export const hydrateWranglerTemplate = (template: string, config: Config) =>
   template
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
-    .replaceAll(
-      "{{LOCK_PAGE_SLUG}}",
-      middleware?.["lock-page-slug"] ?? "/maintenance",
-    )
     .replaceAll("{{STAGING_ROUTES}}", generateRoutes(config.hostnames, "staging"))
-    .replaceAll("{{PRODUCTION_ROUTES}}", generateRoutes(config.hostnames, "production"))
-    .replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled")
     .replaceAll(
-      "{{CSP_DIRECTIVES}}",
-      middleware?.["csp-directives"]
-        ? jsesc(
-            typeof middleware?.["csp-directives"] === "object"
-              ? JSON.stringify(middleware["csp-directives"])
-              : middleware["csp-directives"],
-            { quotes: "double" },
-          )
-        : "",
+      "{{PRODUCTION_ROUTES}}",
+      generateRoutes(config.hostnames, "production"),
     )
 
 export const wranglerFileTemplate = `
@@ -56,15 +37,5 @@ head_sampling_rate = 1
 
 {{STAGING_ROUTES}}
 
-[env.staging.vars]
-CSP_MODE = "{{CSP_MODE}}"
-LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
-CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
-
 {{PRODUCTION_ROUTES}}
-
-[env.production.vars]
-CSP_MODE = "{{CSP_MODE}}"
-LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
-CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 `

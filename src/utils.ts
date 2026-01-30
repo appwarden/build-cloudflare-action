@@ -1,6 +1,7 @@
 import { z } from "zod"
 import { getRootDomain } from "./parse-domain"
-import { ApiMiddlewareOptions, APIResponse } from "./types"
+import { HostnameMiddlewareOptions } from "./templates/generated-config"
+import { APIResponse } from "./types"
 
 const MiddlewareConfigResponseSchema = z.object({
   content: z.array(
@@ -19,7 +20,7 @@ export const getMiddlewareOptions = async (
   hostname: string,
   apiToken: string,
   debug: DebugLogger = () => {},
-): Promise<ApiMiddlewareOptions | undefined> => {
+): Promise<HostnameMiddlewareOptions | undefined> => {
   const rootDomain = getRootDomain(hostname)
 
   const url = new URL(
