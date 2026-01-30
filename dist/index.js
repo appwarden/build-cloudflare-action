@@ -17307,7 +17307,9 @@ var HostnamesSchema = external_exports.string().min(1, { message: "At least one 
   message: "At least one hostname is required"
 }).refine(
   async (hostnames) => {
-    const results = await Promise.all(hostnames.map((h) => isValidHostname(h)));
+    const results = await Promise.all(
+      hostnames.map((h) => isValidHostname(h))
+    );
     return results.every((r) => Boolean(r));
   },
   {
@@ -17405,7 +17407,10 @@ var generateRoutes = (hostnames, env) => hostnames.map(
 pattern = "*${hostname3}*"
 zone_name = "${getRootDomain(hostname3)}"`
 ).join("\n\n");
-var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll("{{STAGING_ROUTES}}", generateRoutes(config2.hostnames, "staging")).replaceAll(
+var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCOUNT_ID}}", config2.cloudflareAccountId).replaceAll(
+  "{{STAGING_ROUTES}}",
+  generateRoutes(config2.hostnames, "staging")
+).replaceAll(
   "{{PRODUCTION_ROUTES}}",
   generateRoutes(config2.hostnames, "production")
 );
@@ -17431,9 +17436,7 @@ head_sampling_rate = 1
 
 // src/utils.ts
 var MiddlewareConfigResponseSchema = external_exports.object({
-  content: external_exports.array(
-    external_exports.object({ options: external_exports.any() })
-  )
+  content: external_exports.array(external_exports.object({ options: external_exports.any() }))
 });
 var isWellFormedToken = (token) => {
   return typeof token === "string" && token.length >= 16;
@@ -17478,9 +17481,7 @@ var getMiddlewareOptions = async (hostname3, apiToken, debug2 = () => {
     throw new Error("BAD_AUTH");
   }
   const result = await res.json();
-  debug2(
-    `[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`
-  );
+  debug2(`[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`);
   const parsed = MiddlewareConfigResponseSchema.safeParse(result);
   if (!parsed.success) {
     const formattedError = JSON.stringify(parsed.error.format(), null, 2);
@@ -17532,7 +17533,9 @@ async function main() {
   const config2 = maybeConfig.data;
   debug(`[config] \u2705 Validation complete`);
   const middlewareDir = ".appwarden/generated-middleware";
-  debug(`[middleware-config] Fetching middleware configuration for all hostnames`);
+  debug(
+    `[middleware-config] Fetching middleware configuration for all hostnames`
+  );
   const middlewareOptionsMap = /* @__PURE__ */ new Map();
   const primaryHostname = config2.hostnames[0];
   for (const hostname3 of config2.hostnames) {

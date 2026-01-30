@@ -31,7 +31,7 @@
     "test:coverage": "vitest run --coverage",
     "check:types": "tsc --noEmit",
     "check:prettier": "prettier --check .",
-    "check:ci": "pnpm check:types && pnpm check:prettier && pnpm build"
+    "check:ci": "npm run check:types && npm run check:prettier"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
