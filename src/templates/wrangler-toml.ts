@@ -2,23 +2,30 @@ import jsesc from "jsesc"
 import { getRootDomain } from "../parse-domain"
 import { ApiMiddlewareOptions, Config } from "../types"
 
+const generateRoutes = (hostnames: string[], env: string): string => {
+  return hostnames
+    .map(
+      (hostname) =>
+        `[[env.${env}.routes]]
+pattern = "*${hostname}/*"
+zone_name = "${getRootDomain(hostname)}"`,
+    )
+    .join("\n\n")
+}
+
 export const hydrateWranglerTemplate = (
   template: string,
   config: Config,
   middleware: ApiMiddlewareOptions,
 ) =>
   template
-    .replaceAll(
-      "{{NAME}}",
-      `appwarden-${config.hostname.replace(/\./g, "_")}`,
-    )
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
     .replaceAll(
       "{{LOCK_PAGE_SLUG}}",
       middleware?.["lock-page-slug"] ?? "/maintenance",
     )
-    .replaceAll("{{PATTERN}}", `*${config.hostname}/*`)
-    .replaceAll("{{ZONE_NAME}}", getRootDomain(config.hostname))
+    .replaceAll("{{STAGING_ROUTES}}", generateRoutes(config.hostnames, "staging"))
+    .replaceAll("{{PRODUCTION_ROUTES}}", generateRoutes(config.hostnames, "production"))
     .replaceAll("{{CSP_MODE}}", middleware?.["csp-mode"] ?? "disabled")
     .replaceAll(
       "{{CSP_DIRECTIVES}}",
@@ -34,9 +41,9 @@ export const hydrateWranglerTemplate = (
 
 export const wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
-name = "{{NAME}}"
+name = "appwarden"
 account_id = "{{ACCOUNT_ID}}"
-compatibility_date = "2024-08-18"
+compatibility_date = "2025-01-01"
 
 workers_dev = false
 send_metrics = false
@@ -47,18 +54,14 @@ main = "app.mjs"
 enabled = true
 head_sampling_rate = 1
 
-[env.staging.route]
-pattern = "{{PATTERN}}"
-zone_name = "{{ZONE_NAME}}"
+{{STAGING_ROUTES}}
 
 [env.staging.vars]
 CSP_MODE = "{{CSP_MODE}}"
 LOCK_PAGE_SLUG = "{{LOCK_PAGE_SLUG}}"
 CSP_DIRECTIVES = "{{CSP_DIRECTIVES}}"
 
-[env.production.route]
-pattern = "{{PATTERN}}"
-zone_name = "{{ZONE_NAME}}"
+{{PRODUCTION_ROUTES}}
 
 [env.production.vars]
 CSP_MODE = "{{CSP_MODE}}"
