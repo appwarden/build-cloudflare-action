@@ -1,5 +1,9 @@
 import { getRootDomain } from "../parse-domain"
-import { Config } from "../types"
+
+export interface WranglerTemplateConfig {
+  cloudflareAccountId: string
+  hostnames: string[]
+}
 
 const generateRoutes = (hostnames: string[], env: string) =>
   hostnames
@@ -11,7 +15,10 @@ zone_name = "${getRootDomain(hostname)}"`,
     )
     .join("\n\n")
 
-export const hydrateWranglerTemplate = (template: string, config: Config) =>
+export const hydrateWranglerTemplate = (
+  template: string,
+  config: WranglerTemplateConfig,
+) =>
   template
     .replaceAll("{{ACCOUNT_ID}}", config.cloudflareAccountId)
     .replaceAll(
@@ -40,5 +47,11 @@ head_sampling_rate = 1
 
 {{STAGING_ROUTES}}
 
+[env.staging.vars]
+API_HOSTNAME = "https://staging-api.appwarden.io"
+
 {{PRODUCTION_ROUTES}}
+
+[env.production.vars]
+API_HOSTNAME = "https://api.appwarden.io"
 `

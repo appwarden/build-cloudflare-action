@@ -5,7 +5,9 @@ pre-commit:
 pre-push:
   commands:
     build:
-      run: npm run build
+      run: |
+        npm run check:ci -- --write
+        npm run build
     check:
       run: |
         if [[ -n $(git status --porcelain) ]]; then

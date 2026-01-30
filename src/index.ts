@@ -1,10 +1,8 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
-import { getRootDomain } from "./parse-domain"
 import { ConfigSchema } from "./schema"
 import {
   appTemplate,
-  HostnameMiddlewareOptions,
   hydrateGeneratedConfig,
   hydratePackageJson,
   hydrateWranglerTemplate,
@@ -50,7 +48,6 @@ export async function main() {
 
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
-    hostnames: core.getInput("hostnames"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
     appwardenApiToken: core.getInput("appwarden-api-token"),
   })
@@ -65,44 +62,33 @@ export async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(
-    `[middleware-config] Fetching middleware configuration for all hostnames`,
-  )
+  debug(`[middleware-config] Fetching middleware configuration`)
 
-  // Fetch middleware options for all hostnames
-  const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
-  const primaryHostname = config.hostnames[0]
-
-  for (const hostname of config.hostnames) {
-    try {
-      const options = await getMiddlewareOptions(
-        hostname,
-        config.appwardenApiToken,
-        debug,
+  // Fetch middleware options for all hostnames from API
+  let middlewareOptionsMap
+  try {
+    middlewareOptionsMap = await getMiddlewareOptions(
+      config.appwardenApiToken,
+      debug,
+    )
+  } catch (error) {
+    if (error instanceof Error) {
+      return core.setFailed(
+        error.message === "BAD_AUTH"
+          ? "Invalid Appwarden API token"
+          : error.message === "no_domain_configurations"
+            ? `No domain configurations found. Please add a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management) and try again.`
+            : error.message,
       )
-      if (options) {
-        middlewareOptionsMap.set(hostname, options)
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        return core.setFailed(
-          error.message === "BAD_AUTH"
-            ? "Invalid Appwarden API token"
-            : error.message === "no_domain_configurations"
-              ? `The hostname (${getRootDomain(hostname)}) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`
-              : error.message,
-        )
-      }
-
-      return core.setFailed(String(error))
     }
+
+    return core.setFailed(String(error))
   }
 
-  // Ensure at least the primary hostname has configuration
-  const primaryMiddlewareOptions = middlewareOptionsMap.get(primaryHostname)
-  if (!primaryMiddlewareOptions) {
+  // Ensure we have at least one hostname configuration
+  if (middlewareOptionsMap.size === 0) {
     return core.setFailed(
-      `Could not find Appwarden middleware configuration for hostnames: ${config.hostnames.join(", ")}`,
+      `No Appwarden middleware configurations found. Please ensure you have configured at least one domain.`,
     )
   }
 
@@ -116,20 +102,29 @@ export async function main() {
 
   debug(`[generation] Generating middleware files`)
 
+  // Generate the config and extract hostnames
+  const { configString, hostnames } =
+    hydrateGeneratedConfig(middlewareOptionsMap)
+
+  debug(`[generation] Extracted hostnames: ${hostnames.join(", ")}`)
+
   // write the app files
   await mkdir(middlewareDir, { recursive: true })
 
-  const projectFiles = [
+  const projectFiles: [string, string][] = [
     [
       "package.json",
       hydratePackageJson(packageJsonTemplate, { version: middlewareVersion }),
     ],
-    ["wrangler.toml", hydrateWranglerTemplate(wranglerFileTemplate, config)],
-    ["app.mjs", appTemplate],
     [
-      "generated-config.mjs",
-      hydrateGeneratedConfig(config.hostnames, middlewareOptionsMap),
+      "wrangler.toml",
+      hydrateWranglerTemplate(wranglerFileTemplate, {
+        cloudflareAccountId: config.cloudflareAccountId,
+        hostnames,
+      }),
     ],
+    ["app.mjs", appTemplate],
+    ["generated-config.mjs", configString],
   ]
 
   for (const [fileName, fileContent] of projectFiles) {
