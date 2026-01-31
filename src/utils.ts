@@ -24,7 +24,7 @@ export const getMiddlewareOptions = async (
   const url = new URL(
     `/v1/middleware-config`,
     // @ts-expect-error tsup config
-    API_HOSTNAME,
+    APPWARDEN_API_HOSTNAME,
   )
 
   debug(`[middleware-config] Request URL: ${url.toString()}`)
