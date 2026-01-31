@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.4
+
+### Patch Changes
+
+- [`113d957`](https://github.com/appwarden/build-cloudflare-action/commit/113d9574ba862d75a4c211def13750f41d0db23b) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Add APPWARDEN_API_HOSTNAME to app template
+
 ## 1.2.3
 
 ### Patch Changes
