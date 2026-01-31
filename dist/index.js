@@ -17434,16 +17434,8 @@ API_HOSTNAME = "https://api.appwarden.io"
 `;
 
 // src/utils.ts
-var MiddlewareConfigItemSchema = external_exports.object({
-  hostname: external_exports.string(),
-  options: external_exports.object({
-    "lock-page-slug": external_exports.string().optional(),
-    "csp-mode": external_exports.enum(["disabled", "report-only", "enforced"]).optional(),
-    "csp-directives": external_exports.record(external_exports.string(), external_exports.string()).optional()
-  })
-});
 var MiddlewareConfigResponseSchema = external_exports.object({
-  content: external_exports.array(MiddlewareConfigItemSchema)
+  content: external_exports.array(external_exports.any())
 });
 var isWellFormedToken = (token) => {
   return typeof token === "string" && token.length >= 16;
@@ -17502,7 +17494,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "1.5.0";
+var middlewareVersion = "1.5.1";
 var Debug = (debug2) => (msg) => {
   if (debug2) {
     console.log(msg);
