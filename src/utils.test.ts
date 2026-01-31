@@ -4,8 +4,8 @@ import { getMiddlewareOptions } from "./utils"
 
 // Mock global fetch
 vi.stubGlobal("fetch", vi.fn())
-// Mock API_HOSTNAME that's injected by tsup
-vi.stubGlobal("API_HOSTNAME", "https://bot-gateway.appwarden.io")
+// Mock APPWARDEN_API_HOSTNAME that's injected by tsup
+vi.stubGlobal("APPWARDEN_API_HOSTNAME", "https://bot-gateway.appwarden.io")
 
 describe("utils", () => {
   describe("getMiddlewareOptions", () => {
