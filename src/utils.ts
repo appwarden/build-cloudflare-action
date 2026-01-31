@@ -2,7 +2,6 @@ import { z } from "zod"
 import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { APIResponse } from "./types"
 
-
 const MiddlewareConfigResponseSchema = z.object({
   content: z.array(z.any()),
 })
