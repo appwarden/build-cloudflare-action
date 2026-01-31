@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.5
+
+### Patch Changes
+
+- [`8e5b5f5`](https://github.com/appwarden/build-cloudflare-action/commit/8e5b5f5ccab2671f6d1c1bb575615677fc6e1384) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Updated staging binding name
+
 ## 1.2.4
 
 ### Patch Changes
