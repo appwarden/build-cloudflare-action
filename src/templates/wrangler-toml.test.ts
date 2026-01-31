@@ -29,8 +29,8 @@ describe("wrangler-toml", () => {
       expect(result).toContain("[[env.production.routes]]")
     })
 
-    describe("API_HOSTNAME environment variable", () => {
-      it("should include staging API_HOSTNAME", () => {
+    describe("APPWARDEN_API_HOSTNAME environment variable", () => {
+      it("should include staging APPWARDEN_API_HOSTNAME", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
@@ -40,11 +40,11 @@ describe("wrangler-toml", () => {
 
         expect(result).toContain("[env.staging.vars]")
         expect(result).toContain(
-          'API_HOSTNAME = "https://staging-api.appwarden.io"',
+          'APPWARDEN_API_HOSTNAME = "https://staging-api.appwarden.io"',
         )
       })
 
-      it("should include production API_HOSTNAME", () => {
+      it("should include production APPWARDEN_API_HOSTNAME", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
@@ -53,7 +53,9 @@ describe("wrangler-toml", () => {
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
 
         expect(result).toContain("[env.production.vars]")
-        expect(result).toContain('API_HOSTNAME = "https://api.appwarden.io"')
+        expect(result).toContain(
+          'APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"',
+        )
       })
     })
 
