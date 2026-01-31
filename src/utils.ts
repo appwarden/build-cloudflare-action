@@ -80,7 +80,7 @@ export const getMiddlewareOptions = async (
   const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
 
   for (const item of parsed.data.content) {
-    middlewareOptionsMap.set(item.hostname, item.options)
+    middlewareOptionsMap.set(item.url, item.options)
   }
 
   return middlewareOptionsMap

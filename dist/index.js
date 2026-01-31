@@ -17488,7 +17488,7 @@ ${formattedError}`
   }
   const middlewareOptionsMap = /* @__PURE__ */ new Map();
   for (const item of parsed.data.content) {
-    middlewareOptionsMap.set(item.hostname, item.options);
+    middlewareOptionsMap.set(item.url, item.options);
   }
   return middlewareOptionsMap;
 };
