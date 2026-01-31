@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.2
+
+### Patch Changes
+
+- [`b0c01cf`](https://github.com/appwarden/build-cloudflare-action/commit/b0c01cf1a41583da9cc7de0d43bc9f0db416e42a) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Relax api response schema
+
 ## 1.2.1
 
 ### Patch Changes
