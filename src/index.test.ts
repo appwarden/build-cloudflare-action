@@ -27,16 +27,22 @@ describe("index", () => {
 
     const mockConfig = {
       debug: false,
-      hostnames: "app.example.com",
       cloudflareAccountId: "1234567890abcdef1234567890abcdef",
       appwardenApiToken: "test-api-token-1234567890",
     }
 
-    const mockMiddlewareOptions: HostnameMiddlewareOptions = {
-      "lock-page-slug": "/maintenance",
-      "csp-mode": "enforced",
-      "csp-directives": { "default-src": "'self'" },
-    }
+    const mockMiddlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>(
+      [
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            "csp-mode": "enforced",
+            "csp-directives": { "default-src": "'self'" },
+          },
+        ],
+      ],
+    )
 
     beforeEach(() => {
       vi.resetAllMocks()
@@ -46,8 +52,6 @@ describe("index", () => {
         switch (name) {
           case "debug":
             return "false"
-          case "hostnames":
-            return mockConfig.hostnames
           case "cloudflare-account-id":
             return mockConfig.cloudflareAccountId
           case "appwarden-api-token":
@@ -62,8 +66,8 @@ describe("index", () => {
       mockFs.mkdir.mockResolvedValue(undefined)
       mockFs.writeFile.mockResolvedValue(undefined)
 
-      // Mock successful middleware options fetch
-      mockGetMiddlewareOptions.mockResolvedValue(mockMiddlewareOptions)
+      // Mock successful middleware options fetch - returns map of all hostnames
+      mockGetMiddlewareOptions.mockResolvedValue(mockMiddlewareOptionsMap)
     })
 
     afterEach(() => {
@@ -76,9 +80,8 @@ describe("index", () => {
       // Verify repository validation
       expect(mockFs.readdir).toHaveBeenCalledWith("..")
 
-      // Verify middleware options fetch (uses first hostname)
+      // Verify middleware options fetch
       expect(mockGetMiddlewareOptions).toHaveBeenCalledWith(
-        "app.example.com",
         mockConfig.appwardenApiToken,
         expect.any(Function),
       )
@@ -134,34 +137,9 @@ describe("index", () => {
       )
     })
 
-    it("should fail with invalid hostname", async () => {
-      mockCore.getInput.mockImplementation((name: string) => {
-        switch (name) {
-          case "hostnames":
-            return "invalid-hostname"
-          case "debug":
-            return "false"
-          case "cloudflare-account-id":
-            return mockConfig.cloudflareAccountId
-          case "appwarden-api-token":
-            return mockConfig.appwardenApiToken
-          default:
-            return ""
-        }
-      })
-
-      await main()
-
-      expect(mockCore.setFailed).toHaveBeenCalledWith(
-        expect.stringContaining("hostnames"),
-      )
-    })
-
     it("should fail with invalid cloudflare account id", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostnames":
-            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -183,8 +161,6 @@ describe("index", () => {
     it("should fail validation with empty appwarden api token", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostnames":
-            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -207,8 +183,6 @@ describe("index", () => {
     it("should fail validation with too short appwarden api token", async () => {
       mockCore.getInput.mockImplementation((name: string) => {
         switch (name) {
-          case "hostnames":
-            return mockConfig.hostnames
           case "debug":
             return "false"
           case "cloudflare-account-id":
@@ -246,7 +220,7 @@ describe("index", () => {
       await main()
 
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        `The hostname (example.com) was not found in a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Please add one for this domain and try again.`,
+        `No domain configurations found. Please add a [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management) and try again.`,
       )
     })
 
@@ -267,13 +241,15 @@ describe("index", () => {
       expect(mockCore.setFailed).toHaveBeenCalledWith("String error")
     })
 
-    it("should fail when middleware options are undefined", async () => {
-      mockGetMiddlewareOptions.mockResolvedValue(undefined)
+    it("should fail when no middleware configurations are returned", async () => {
+      mockGetMiddlewareOptions.mockResolvedValue(
+        new Map<string, HostnameMiddlewareOptions>(),
+      )
 
       await main()
 
       expect(mockCore.setFailed).toHaveBeenCalledWith(
-        `Could not find Appwarden middleware configuration for hostnames: ${mockConfig.hostnames}`,
+        `No Appwarden middleware configurations found. Please ensure you have configured at least one domain.`,
       )
     })
 
@@ -282,8 +258,6 @@ describe("index", () => {
         switch (name) {
           case "debug":
             return "true"
-          case "hostnames":
-            return mockConfig.hostnames
           case "cloudflare-account-id":
             return mockConfig.cloudflareAccountId
           case "appwarden-api-token":
