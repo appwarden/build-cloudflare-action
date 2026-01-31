@@ -33386,12 +33386,12 @@ head_sampling_rate = 1
 {{STAGING_ROUTES}}
 
 [env.staging.vars]
-API_HOSTNAME = "https://staging-api.appwarden.io"
+APPWARDEN_API_HOSTNAME = "https://staging-api.appwarden.io"
 
 {{PRODUCTION_ROUTES}}
 
 [env.production.vars]
-API_HOSTNAME = "https://api.appwarden.io"
+APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"
 `;
 
 // src/utils.ts
