@@ -1,5 +1,13 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.3
+
+### Patch Changes
+
+- [`074bb05`](https://github.com/appwarden/build-cloudflare-action/commit/074bb05c05781d96f535bd68855b3f0a5ac7b938) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fix code formatting
+
+- [`1ddd448`](https://github.com/appwarden/build-cloudflare-action/commit/1ddd448dbf8bf578115f70040b9a515fd099a8ca) Thanks [@stevefrench39](https://github.com/stevefrench39)! - fix bad api response key
+
 ## 1.2.2
 
 ### Patch Changes
