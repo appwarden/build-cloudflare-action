@@ -2,17 +2,9 @@ import { z } from "zod"
 import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { APIResponse } from "./types"
 
-const MiddlewareConfigItemSchema = z.object({
-  hostname: z.string(),
-  options: z.object({
-    "lock-page-slug": z.string().optional(),
-    "csp-mode": z.enum(["disabled", "report-only", "enforced"]).optional(),
-    "csp-directives": z.record(z.string(), z.string()).optional(),
-  }),
-})
 
 const MiddlewareConfigResponseSchema = z.object({
-  content: z.array(MiddlewareConfigItemSchema),
+  content: z.array(z.any()),
 })
 
 export type DebugLogger = (msg: unknown) => void

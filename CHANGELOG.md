@@ -1,5 +1,21 @@
 # @appwarden/build-cloudflare-action
 
+## 1.2.2
+
+### Patch Changes
+
+- [`b0c01cf`](https://github.com/appwarden/build-cloudflare-action/commit/b0c01cf1a41583da9cc7de0d43bc9f0db416e42a) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Relax api response schema
+
+## 1.2.1
+
+### Patch Changes
+
+- [`f29f6f2`](https://github.com/appwarden/build-cloudflare-action/commit/f29f6f23f6ec9f14ddc98e9c0929d6a5cb103037) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Improve worker script route pattern specificity
+
+- [#96](https://github.com/appwarden/build-cloudflare-action/pull/96) [`abcf5a6`](https://github.com/appwarden/build-cloudflare-action/commit/abcf5a69322fca2951f3c97ac37635afd35a2ebc) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Consume deployment hostnames from middleware configuration
+
+- [#90](https://github.com/appwarden/build-cloudflare-action/pull/90) [`1254011`](https://github.com/appwarden/build-cloudflare-action/commit/125401159ce13b29cb01d958a06a0567365a5ca3) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Clean up configuration bindings and variables
+
 ## 1.2.0
 
 ### Minor Changes
