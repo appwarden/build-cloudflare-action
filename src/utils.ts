@@ -2,7 +2,6 @@ import { z } from "zod"
 import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { APIResponse } from "./types"
 
-
 const MiddlewareConfigResponseSchema = z.object({
   content: z.array(z.any()),
 })
@@ -80,7 +79,7 @@ export const getMiddlewareOptions = async (
   const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
 
   for (const item of parsed.data.content) {
-    middlewareOptionsMap.set(item.hostname, item.options)
+    middlewareOptionsMap.set(item.url, item.options)
   }
 
   return middlewareOptionsMap

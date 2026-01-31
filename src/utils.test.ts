@@ -24,11 +24,11 @@ describe("utils", () => {
       // Setup global fetch mock
       global.fetch = mockFetch
 
-      // Default successful response - API now returns hostname in each config item
+      // Default successful response - API returns url in each config item
       mockFetch.mockResolvedValue({
         json: async () => ({
           content: [
-            { hostname: "test.example.com", options: mockMiddlewareOptions },
+            { url: "test.example.com", options: mockMiddlewareOptions },
           ],
         }),
         headers: {
@@ -68,8 +68,8 @@ describe("utils", () => {
       mockFetch.mockResolvedValue({
         json: async () => ({
           content: [
-            { hostname: "test.example.com", options: mockMiddlewareOptions },
-            { hostname: "staging.example.com", options: secondHostnameOptions },
+            { url: "test.example.com", options: mockMiddlewareOptions },
+            { url: "staging.example.com", options: secondHostnameOptions },
           ],
         }),
         headers: {
