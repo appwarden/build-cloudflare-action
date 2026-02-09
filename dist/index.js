@@ -32779,12 +32779,12 @@ var ConfigSchema = external_exports.object({
 var appTemplate = `
 import {
   useContentSecurityPolicy,
-  withAppwarden,
+  createAppwardenMiddleware,
 } from "@appwarden/middleware/cloudflare"
 import { config } from './generated-config.mjs'
 
 export default {
-  fetch: withAppwarden((context) => ({
+  fetch: createAppwardenMiddleware((context) => ({
     debug: context.env.DEBUG,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     appwardenApiHostname: context.env.APPWARDEN_API_HOSTNAME,
