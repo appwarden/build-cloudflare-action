@@ -9,89 +9,70 @@ Easy-to-use GitHub Action to build Appwarden for deployment to your Cloudflare d
 
 ## Features
 
-- 🚀 **Automated Middleware Generation**: Automatically generates Cloudflare Worker middleware for your domain
-- 🔧 **Cloudflare Integration**: Seamless integration with Cloudflare Workers and Wrangler
+- 🚀 **Automated Middleware Generation**: Generates Cloudflare middleware populated with your Appwarden domain configuration compatible with any website
 - 🛡️ **Security Configuration**: Configures Content Security Policy (CSP) and lock page settings
 - 🧪 **Debug Mode**: Built-in debug mode for troubleshooting deployments
-- ✅ **Type Safe**: Written in TypeScript with comprehensive input validation using Zod
-- 🔍 **Domain Validation**: Validates hostnames and Cloudflare account IDs
 - 📦 **Zero Configuration**: Works out of the box with minimal setup required
+
+## Why Use This Action?
+
+This GitHub Action is the **official and recommended way** to install [Appwarden](https://appwarden.io/docs) on any website deployed on Cloudflare.
+
+### Automatic Updates
+
+The action automatically deploys the most up-to-date version of Appwarden without requiring any additional configuration. Your middleware stays current with the latest security features and improvements.
+
+### Configuration Management
+
+Your middleware configuration is automatically applied from your [domain configuration file](https://appwarden.io/docs/guides/domain-configuration-management). Simply define your settings once, and the action handles the rest.
+
+### Full CSP Support
+
+This action fully supports Appwarden's nonce-based Content Security Policy (CSP) functionality, enabling robust protection against browser-based attacks while maintaining compatibility with your application.
+
+### How It Works
+
+The action builds a single Cloudflare Worker script that runs on every request to the hostnames listed in the `middleware` section of your domain configuration files.
+
+For example, given this domain configuration:
+
+```yaml
+hostname: appwarden.cc
+version: 1
+websites:
+  middleware:
+    - url: appwarden.cc
+      options:
+        lock-page-slug: /maintenance
+        csp-mode: report-only
+        csp-directives:
+          script-src:
+            - "self"
+            - "{{nonce}}"
+    - url: tanstack.appwarden.cc
+      options:
+        lock-page-slug: /maintenance
+        csp-mode: enforced
+        csp-directives:
+          img-src:
+            - "self"
+```
+
+The deployed Cloudflare Worker will include a route for each configured hostname:
+
+![Appwarden Middleware Routes](content/appwarden-middleware-routes.png)
 
 ## Inputs
 
-| Input                   | Description                                                            | Required | Default |
-| ----------------------- | ---------------------------------------------------------------------- | -------- | ------- |
-| `hostname`              | The hostname of your Appwarden-protected domain (e.g. app.example.com) | ✅       | -       |
-| `cloudflare-account-id` | Your Cloudflare account ID (32 character string)                       | ✅       | -       |
-| `appwarden-api-token`   | Your Appwarden API token                                               | ✅       | -       |
-| `debug`                 | Enable debug mode for troubleshooting                                  | ❌       | `false` |
+| Input                   | Description                        | Required | Default |
+| ----------------------- | ---------------------------------- | -------- | ------- |
+| `cloudflare-account-id` | Cloudflare account id              | ✅       | -       |
+| `appwarden-api-token`   | Appwarden API token                | ✅       | -       |
+| `debug`                 | Enable debug mode                  | ❌       | `false` |
 
 ## Installation
 
-This workflow builds and deploys the latest version of Appwarden to your domain. The workflow is optionally triggered by
-
-1. Publishing a new release
-2. Pushing to `main` (or another branch)
-
-> Follow the emoji numbered instructions to fill in the required content.
-
-```
-name: 🤖 Deploy Appwarden
-on: workflow_dispatch
-# 1️⃣ Uncomment the following lines to deploy the middleware on every release
-# deploy the middleware on every release
-# on:
-#   release:
-#     types: [published]
-# 1️⃣ or, uncomment the following lines to deploy the middleware on a push to a specific branch
-# on:
-#   push:
-#     branches:
-#       - main
-env:
-  APP_HOSTNAME: # 2️⃣ add your domain (e.g. example.com)
-  CLOUDFLARE_ACCOUNT_ID: # 2️⃣ add your cloudflare account id
-  APPWARDEN_API_TOKEN: # 2️⃣ add your appwarden api token as a [secret](https://docs.github.com/en/actions/security-for-github-actions/security-guides/using-secrets-in-github-actions)
-jobs:
-  deploy-appwarden:
-    name: Deploy Appwarden
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup node
-        uses: actions/setup-node@v4
-      # 3️⃣ Uncomment the following lines if you're using `npm`
-      # - name: Setup npm
-      #   run: npm ci --ignore-scripts
-      # 3️⃣ Uncomment the following lines if you're using `yarn`
-      # - name: Install dependencies
-      #   run: yarn install --ignore-scripts
-      # 3️⃣ Uncomment the following lines if you're using `pnpm`
-      # - name: Setup pnpm
-      #   uses: pnpm/action-setup@v3.0.0
-      #   with:
-      #     run_install: |
-      #       - args: [--ignore-scripts]
-      # This builds the Appwarden middleware for Cloudflare
-      - name: Build @appwarden/middleware on Cloudflare
-        uses: appwarden/build-cloudflare-action@v1
-        with:
-          hostname: ${{ env.APP_HOSTNAME }}
-          cloudflare-account-id: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-      # This deploys the Appwarden middleware to Cloudflare
-      - name: Deploy middleware
-        uses: cloudflare/wrangler-action@v3.4.1
-        with:
-          packageManager: # 4️⃣ add your package manager (e.g. npm, yarn, or pnpm)
-          workingDirectory: .appwarden/generated-middleware
-          # we recommend keeping wrangler version fixed to avoid an intermittent issue with later versions causing the deployment to fail
-          wranglerVersion: 3.3.0
-          environment: production
-          accountId: ${{ env.CLOUDFLARE_ACCOUNT_ID }}
-          apiToken: ${{ env.APPWARDEN_API_TOKEN }}
-          secrets: |
-            APPWARDEN_API_TOKEN
-```
+<!-- # todo add link to workflow here -->
 
 > [Read the docs](https://appwarden.io/docs/guides/cloudflare-integration) to learn more
 
@@ -99,7 +80,7 @@ jobs:
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - npm
 
 ### Setup
