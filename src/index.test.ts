@@ -113,6 +113,16 @@ describe("index", () => {
         expect.any(String),
       )
 
+      // Verify outputs are set
+      expect(mockCore.setOutput).toHaveBeenCalledWith(
+        "middlewareVersion",
+        "1.0.0",
+      )
+      expect(mockCore.setOutput).toHaveBeenCalledWith(
+        "hostnames",
+        "app.example.com",
+      )
+
       // Verify no failures
       expect(mockCore.setFailed).not.toHaveBeenCalled()
     })

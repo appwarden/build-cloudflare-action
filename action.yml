@@ -15,6 +15,11 @@ inputs:
   appwarden-api-token:
     description: Appwarden API token
     required: true
+outputs:
+  middlewareVersion:
+    description: The version of @appwarden/middleware that was deployed
+  hostnames:
+    description: Comma-separated list of hostnames the middleware was deployed to
 runs:
   using: node24
   main: dist/index.js

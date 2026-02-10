@@ -27,7 +27,7 @@ export default defineConfig(async () => {
     noExternal: [/(.*)/],
     define: {
       MIDDLEWARE_VERSION: v(middlewareVersion),
-      APPWARDEN_API_HOSTNAME: v("https://staging-api.appwarden.io"),
+      APPWARDEN_API_HOSTNAME: v("https://api.appwarden.io"),
     },
   }
 })
