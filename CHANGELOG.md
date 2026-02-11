@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.3.0
+
+### Minor Changes
+
+- [#106](https://github.com/appwarden/build-cloudflare-action/pull/106) [`75b0224`](https://github.com/appwarden/build-cloudflare-action/commit/75b0224951210189ae487c751f05a4bbb0cabf07) Thanks [@stevefrench39](https://github.com/stevefrench39)! - add hostnames and middlewareVersion to action outputs
+
 ## 1.2.5
 
 ### Patch Changes
