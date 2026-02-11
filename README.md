@@ -64,17 +64,17 @@ The deployed Cloudflare Worker will include a route for each configured hostname
 
 ## Inputs
 
-| Input                   | Description                        | Required | Default |
-| ----------------------- | ---------------------------------- | -------- | ------- |
-| `cloudflare-account-id` | Cloudflare account id              | ✅       | -       |
-| `appwarden-api-token`   | Appwarden API token                | ✅       | -       |
-| `debug`                 | Enable debug mode                  | ❌       | `false` |
+| Input                   | Description           | Required | Default |
+| ----------------------- | --------------------- | -------- | ------- |
+| `cloudflare-account-id` | Cloudflare account id | ✅       | -       |
+| `appwarden-api-token`   | Appwarden API token   | ✅       | -       |
+| `debug`                 | Enable debug mode     | ❌       | `false` |
 
 ## Outputs
 
-| Output              | Description                                                    |
-| ------------------- | -------------------------------------------------------------- |
-| `middlewareVersion` | The version of @appwarden/middleware that was deployed         |
+| Output              | Description                                                      |
+| ------------------- | ---------------------------------------------------------------- |
+| `middlewareVersion` | The version of @appwarden/middleware that was deployed           |
 | `hostnames`         | Comma-separated list of hostnames the middleware was deployed to |
 
 ## Installation
