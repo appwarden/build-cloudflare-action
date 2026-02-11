@@ -9,7 +9,7 @@ on:
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 
 env:
-  MAJOR_VERSION: v1
+  MAJOR_VERSION: v3
 
 jobs:
   release:
