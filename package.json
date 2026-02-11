@@ -48,7 +48,7 @@
     "@vitest/coverage-v8": "^4.0.18",
     "lefthook": "^2.0.16",
     "prettier": "^3.8.1",
-    "semver": "^7.7.3",
+    "semver": "^7.7.4",
     "tsup": "8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
