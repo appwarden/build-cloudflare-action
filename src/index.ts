@@ -133,6 +133,10 @@ export async function main() {
   }
 
   debug(`[generation] ✅ Generation complete`)
+
+  // Set outputs for downstream steps
+  core.setOutput("middlewareVersion", middlewareVersion)
+  core.setOutput("hostnames", hostnames.join(", "))
 }
 
 main().catch((err) => {
