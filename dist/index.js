@@ -33445,7 +33445,7 @@ var getMiddlewareOptions = async (apiToken, debug3 = () => {
   const url2 = new URL(
     `/v1/middleware-config`,
     // @ts-expect-error tsup config
-    "https://api.appwarden.io"
+    "https://staging-api.appwarden.io"
   );
   debug3(`[middleware-config] Request URL: ${url2.toString()}`);
   debug3(
@@ -33494,7 +33494,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "3.1.1";
+var middlewareVersion = "3.2.0";
 var Debug = (debug3) => (msg) => {
   if (debug3) {
     console.log(msg);
