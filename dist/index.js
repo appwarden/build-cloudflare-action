@@ -33474,7 +33474,7 @@ var getMiddlewareOptions = async (apiToken, debug3 = () => {
   const url2 = new URL(
     `/v1/appwarden/config`,
     // @ts-expect-error tsup config
-    "https://api.appwarden.io"
+    "https://staging-api.appwarden.io"
   );
   debug3(`[config] Request URL: ${url2.toString()}`);
   debug3(
