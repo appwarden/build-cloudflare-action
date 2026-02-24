@@ -1,5 +1,6 @@
 # appwarden/build-cloudflare-action
 
+[![Docs](https://img.shields.io/badge/Documentation-blue)](https://appwarden.io/docs/reference/appwarden-build-cloudflare-action)
 [![GitHub](https://img.shields.io/badge/GitHub-appwarden%2Fbuild--cloudflare--action-181717?logo=github&logoColor=white)](https://github.com/appwarden/build-cloudflare-action)
 ![Test Coverage](https://img.shields.io/badge/coverage-93.95%25-brightgreen)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
