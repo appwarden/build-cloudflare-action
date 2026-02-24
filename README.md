@@ -128,6 +128,8 @@ jobs:
           echo "::notice::✅ Appwarden middleware v${{ steps.build.outputs.middlewareVersion }} deployed successfully to: ${{ steps.build.outputs.hostnames }} | View in Cloudflare dashboard: https://dash.cloudflare.com/${{ env.CLOUDFLARE_ACCOUNT_ID }}/workers-and-pages"
 ```
 
+> [Read the docs](https://appwarden.io/docs/guides/cloudflare-middleware-integration#1-set-up-the-github-actions-workflow) to learn more
+
 ## Development
 
 ### Prerequisites
