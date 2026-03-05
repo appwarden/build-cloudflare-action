@@ -36,17 +36,17 @@
   "dependencies": {
     "@actions/core": "^3.0.0",
     "@actions/exec": "^3.0.0",
-    "parse-domain": "^8.2.2",
+    "parse-domain": "^8.3.0",
     "yaml": "2.8.2",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@changesets/changelog-github": "^0.5.2",
     "@changesets/cli": "^2.29.8",
-    "@cloudflare/workers-types": "^4.20260303.0",
-    "@types/node": "^25.3.0",
+    "@cloudflare/workers-types": "^4.20260305.0",
+    "@types/node": "^25.3.3",
     "@vitest/coverage-v8": "^4.0.18",
-    "lefthook": "^2.1.1",
+    "lefthook": "^2.1.2",
     "prettier": "^3.8.1",
     "semver": "^7.7.4",
     "tsup": "8.5.1",
