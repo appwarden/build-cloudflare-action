@@ -50,9 +50,9 @@ describe("utils", () => {
         headers: { Authorization: mockApiToken },
       })
 
-      // Verify the URL points to the middleware-config endpoint without hostname filter
+      // Verify the URL points to the appwarden/config endpoint without hostname filter
       const fetchUrl = mockFetch.mock.calls[0][0].toString()
-      expect(fetchUrl).toContain("/v1/middleware-config")
+      expect(fetchUrl).toContain("/v1/appwarden/config")
 
       // Verify the result is a Map with the expected hostname and options
       expect(result).toBeInstanceOf(Map)

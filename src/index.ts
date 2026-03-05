@@ -62,7 +62,7 @@ export async function main() {
 
   const middlewareDir = ".appwarden/generated-middleware"
 
-  debug(`[middleware-config] Fetching middleware configuration`)
+  debug(`[config] Fetching middleware configuration`)
 
   // Fetch middleware options for all hostnames from API
   let middlewareOptionsMap
@@ -93,7 +93,7 @@ export async function main() {
   }
 
   debug(
-    `[middleware-config] ✅ Fetch complete for ${middlewareOptionsMap.size} hostname(s)\n ${JSON.stringify(
+    `[config] ✅ Fetch complete for ${middlewareOptionsMap.size} hostname(s)\n ${JSON.stringify(
       Object.fromEntries(middlewareOptionsMap),
       null,
       2,

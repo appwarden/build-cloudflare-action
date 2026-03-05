@@ -22,14 +22,14 @@ export const getMiddlewareOptions = async (
   debug: DebugLogger = () => {},
 ): Promise<Map<string, HostnameMiddlewareOptions>> => {
   const url = new URL(
-    `/v1/middleware-config`,
+    `/v1/appwarden/config`,
     // @ts-expect-error tsup config
     APPWARDEN_API_HOSTNAME,
   )
 
-  debug(`[middleware-config] Request URL: ${url.toString()}`)
+  debug(`[config] Request URL: ${url.toString()}`)
   debug(
-    `[middleware-config] Token well-formed: ${isWellFormedToken(apiToken)} (length: ${apiToken?.length ?? 0})`,
+    `[config] Token well-formed: ${isWellFormedToken(apiToken)} (length: ${apiToken?.length ?? 0})`,
   )
 
   let res: Response
@@ -43,14 +43,12 @@ export const getMiddlewareOptions = async (
     throw new Error(`Failed to fetch middleware configuration: ${message}`)
   }
 
-  debug(`[middleware-config] Response status: ${res.status}`)
+  debug(`[config] Response status: ${res.status}`)
 
   if (res.status >= 400) {
     if (res.headers.get("content-type")?.includes("application/json")) {
       const result = (await res.json()) as APIResponse
-      debug(
-        `[middleware-config] Error response body: ${JSON.stringify(result, null, 2)}`,
-      )
+      debug(`[config] Error response body: ${JSON.stringify(result, null, 2)}`)
       if (result.error?.code) {
         throw new Error(result.error.code)
       }
@@ -63,7 +61,7 @@ export const getMiddlewareOptions = async (
   }
 
   const result: unknown = await res.json()
-  debug(`[middleware-config] Response body: ${JSON.stringify(result, null, 2)}`)
+  debug(`[config] Response body: ${JSON.stringify(result, null, 2)}`)
 
   const parsed = MiddlewareConfigResponseSchema.safeParse(result)
 
