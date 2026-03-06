@@ -1,5 +1,5 @@
 export interface GeneratedConfig {
-  appwarden?: Record<string, { lockPageSlug: string }>
+  appwarden?: Record<string, { lockPageSlug?: string; debug?: boolean }>
   csp?: Record<
     string,
     {
@@ -53,8 +53,11 @@ export const hydrateGeneratedConfig = (
 ): HydratedGeneratedConfig => {
   const config: GeneratedConfig = {}
 
-  // Build appwarden multidomainConfig if any hostname has lock-page-slug
-  const appwardenConfig: Record<string, { lockPageSlug: string }> = {}
+  // Build appwarden multidomainConfig if any hostname has lock-page-slug or debug
+  const appwardenConfig: Record<
+    string,
+    { lockPageSlug?: string; debug?: boolean }
+  > = {}
   // Build CSP config per hostname
   const cspConfig: Record<
     string,
@@ -81,9 +84,23 @@ export const hydrateGeneratedConfig = (
   }
 
   for (const [hostname, options] of middlewareOptionsMap) {
-    if (options?.["lock-page-slug"]) {
-      appwardenConfig[hostname] = {
-        lockPageSlug: options["lock-page-slug"],
+    // Include hostname in appwarden config if it has lock-page-slug or debug
+    if (options?.["lock-page-slug"] || options?.debug !== undefined) {
+      if (!appwardenConfig[hostname]) {
+        appwardenConfig[hostname] = {}
+      }
+
+      if (options?.["lock-page-slug"]) {
+        appwardenConfig[hostname].lockPageSlug = options["lock-page-slug"]
+      }
+
+      if (options?.debug !== undefined) {
+        // Handle both string "true"/"false" and boolean values
+        const debugValue =
+          typeof options.debug === "string"
+            ? options.debug.toLowerCase() === "true"
+            : options.debug
+        appwardenConfig[hostname].debug = debugValue
       }
     }
 

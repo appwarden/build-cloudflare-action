@@ -234,6 +234,90 @@ describe("generated-config", () => {
       expect(result.debug).toBe(true)
     })
 
+    it("should include debug field in generated config when debug is true", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: true,
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.configString).toBe(`${header}export const config = {
+  "appwarden": {
+    "app.example.com": {
+      "lockPageSlug": "/maintenance",
+      "debug": true
+    }
+  }
+}
+`)
+      expect(result.debug).toBe(true)
+    })
+
+    it("should include debug field in generated config when debug is false", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: false,
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.configString).toBe(`${header}export const config = {
+  "appwarden": {
+    "app.example.com": {
+      "lockPageSlug": "/maintenance",
+      "debug": false
+    }
+  }
+}
+`)
+      expect(result.debug).toBe(false)
+    })
+
+    it("should include debug field for only the hostname that has it configured", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: true,
+          },
+        ],
+        [
+          "staging.example.com",
+          {
+            "lock-page-slug": "/staging-maintenance",
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.configString).toBe(`${header}export const config = {
+  "appwarden": {
+    "app.example.com": {
+      "lockPageSlug": "/maintenance",
+      "debug": true
+    },
+    "staging.example.com": {
+      "lockPageSlug": "/staging-maintenance"
+    }
+  }
+}
+`)
+      expect(result.debug).toBe(true)
+    })
+
     it("should extract debug value as boolean true when set to string 'true'", () => {
       const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
         [

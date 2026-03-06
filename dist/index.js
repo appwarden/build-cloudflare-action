@@ -32822,9 +32822,12 @@ import {
 } from "@appwarden/middleware/cloudflare"
 import { config } from './generated-config.mjs'
 
+// Compute global debug value from config - if ANY hostname has debug enabled, enable it globally
+const debugEnabled = Object.values(config.appwarden || {}).some(hostnameConfig => hostnameConfig.debug === true)
+
 export default {
   fetch: createAppwardenMiddleware((context) => ({
-    debug: context.env.DEBUG,
+    debug: debugEnabled,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     appwardenApiHostname: context.env.APPWARDEN_API_HOSTNAME,
     multidomainConfig: config.appwarden,
@@ -32871,10 +32874,17 @@ var hydrateGeneratedConfig = (middlewareOptionsMap) => {
     }
   }
   for (const [hostname3, options2] of middlewareOptionsMap) {
-    if (options2?.["lock-page-slug"]) {
-      appwardenConfig[hostname3] = {
-        lockPageSlug: options2["lock-page-slug"]
-      };
+    if (options2?.["lock-page-slug"] || options2?.debug !== void 0) {
+      if (!appwardenConfig[hostname3]) {
+        appwardenConfig[hostname3] = {};
+      }
+      if (options2?.["lock-page-slug"]) {
+        appwardenConfig[hostname3].lockPageSlug = options2["lock-page-slug"];
+      }
+      if (options2?.debug !== void 0) {
+        const debugValue = typeof options2.debug === "string" ? options2.debug.toLowerCase() === "true" : options2.debug;
+        appwardenConfig[hostname3].debug = debugValue;
+      }
     }
     if (options2?.["csp-mode"] || options2?.["csp-directives"]) {
       cspConfig[hostname3] = {};
