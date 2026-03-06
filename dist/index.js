@@ -32860,6 +32860,16 @@ var hydrateGeneratedConfig = (middlewareOptionsMap) => {
   const config2 = {};
   const appwardenConfig = {};
   const cspConfig = {};
+  let debug3 = false;
+  for (const [, options2] of middlewareOptionsMap) {
+    if (options2?.debug) {
+      const debugValue = typeof options2.debug === "string" ? options2.debug.toLowerCase() === "true" : options2.debug;
+      if (debugValue) {
+        debug3 = true;
+        break;
+      }
+    }
+  }
   for (const [hostname3, options2] of middlewareOptionsMap) {
     if (options2?.["lock-page-slug"]) {
       appwardenConfig[hostname3] = {
@@ -32888,7 +32898,7 @@ var hydrateGeneratedConfig = (middlewareOptionsMap) => {
 
 export const config = ${JSON.stringify(config2, null, 2)}
 `;
-  return { configString, hostnames };
+  return { configString, hostnames, debug: debug3 };
 };
 
 // src/templates/package-json.ts
@@ -33406,7 +33416,7 @@ var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCO
 ).replaceAll(
   "{{PRODUCTION_ROUTES}}",
   generateRoutes(config2.hostnames, "production")
-);
+).replaceAll("{{DEBUG}}", config2.debug.toString());
 var wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
 name = "appwarden"
@@ -33426,11 +33436,13 @@ head_sampling_rate = 1
 
 [env.staging.vars]
 APPWARDEN_API_HOSTNAME = "https://staging-api.appwarden.io"
+DEBUG = {{DEBUG}}
 
 {{PRODUCTION_ROUTES}}
 
 [env.production.vars]
 APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"
+DEBUG = {{DEBUG}}
 `;
 
 // src/utils.ts
@@ -33558,8 +33570,13 @@ async function main() {
     )}`
   );
   debug2(`[generation] Generating middleware files`);
-  const { configString, hostnames } = hydrateGeneratedConfig(middlewareOptionsMap);
+  const {
+    configString,
+    hostnames,
+    debug: debugEnabled
+  } = hydrateGeneratedConfig(middlewareOptionsMap);
   debug2(`[generation] Extracted hostnames: ${hostnames.join(", ")}`);
+  debug2(`[generation] Debug mode: ${debugEnabled}`);
   await (0, import_promises.mkdir)(middlewareDir, { recursive: true });
   const projectFiles = [
     [
@@ -33570,7 +33587,8 @@ async function main() {
       "wrangler.toml",
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config2.cloudflareAccountId,
-        hostnames
+        hostnames,
+        debug: debugEnabled
       })
     ],
     ["app.mjs", appTemplate],

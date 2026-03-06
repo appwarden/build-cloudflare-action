@@ -215,6 +215,109 @@ describe("generated-config", () => {
       expect(result.configString).toBe(`${header}export const config = {}
 `)
       expect(result.hostnames).toEqual([])
+      expect(result.debug).toBe(false)
+    })
+
+    it("should extract debug value as boolean true when set to boolean true", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: true,
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(true)
+    })
+
+    it("should extract debug value as boolean true when set to string 'true'", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: "true",
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(true)
+    })
+
+    it("should extract debug value as boolean false when set to string 'false'", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: "false",
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(false)
+    })
+
+    it("should extract debug value as boolean false when set to boolean false", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: false,
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(false)
+    })
+
+    it("should enable debug if ANY hostname has debug enabled", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+            debug: false,
+          },
+        ],
+        [
+          "staging.example.com",
+          {
+            "lock-page-slug": "/staging-maintenance",
+            debug: true,
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(true)
+    })
+
+    it("should default debug to false when not specified", () => {
+      const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>([
+        [
+          "app.example.com",
+          {
+            "lock-page-slug": "/maintenance",
+          },
+        ],
+      ])
+
+      const result = hydrateGeneratedConfig(middlewareOptionsMap)
+
+      expect(result.debug).toBe(false)
     })
   })
 

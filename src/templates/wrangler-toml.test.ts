@@ -13,6 +13,7 @@ describe("wrangler-toml", () => {
       const config: WranglerTemplateConfig = {
         hostnames: ["app.example.com"],
         cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+        debug: false,
       }
 
       const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -34,6 +35,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -44,10 +46,37 @@ describe("wrangler-toml", () => {
         )
       })
 
+      it("should include DEBUG environment variable in staging when debug is true", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: true,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.staging.vars]")
+        expect(result).toContain("DEBUG = true")
+      })
+
+      it("should include DEBUG environment variable in staging when debug is false", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.staging.vars]")
+        expect(result).toContain("DEBUG = false")
+      })
+
       it("should include production APPWARDEN_API_HOSTNAME", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -57,6 +86,52 @@ describe("wrangler-toml", () => {
           'APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"',
         )
       })
+
+      it("should include DEBUG environment variable in production when debug is true", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: true,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.production.vars]")
+        expect(result).toContain("DEBUG = true")
+      })
+
+      it("should include DEBUG environment variable in production when debug is false", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        expect(result).toContain("[env.production.vars]")
+        expect(result).toContain("DEBUG = false")
+      })
+
+      it("should include DEBUG in both staging and production environments", () => {
+        const config: WranglerTemplateConfig = {
+          hostnames: ["app.example.com"],
+          cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: true,
+        }
+
+        const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
+
+        // Check staging
+        expect(result).toContain("[env.staging.vars]")
+        const stagingSection = result.split("[env.production")[0]
+        expect(stagingSection).toContain("DEBUG = true")
+
+        // Check production
+        expect(result).toContain("[env.production.vars]")
+        const productionSection = result.split("[env.production.vars]")[1]
+        expect(productionSection).toContain("DEBUG = true")
+      })
     })
 
     describe("security: input sanitization", () => {
@@ -64,6 +139,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -80,6 +156,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "abcdef1234567890abcdef1234567890",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -95,6 +172,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com", "staging.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -125,6 +203,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com", "app.otherdomain.org"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)
@@ -142,6 +221,7 @@ describe("wrangler-toml", () => {
         const config: WranglerTemplateConfig = {
           hostnames: ["app.example.com"],
           cloudflareAccountId: "1234567890abcdef1234567890abcdef",
+          debug: false,
         }
 
         const result = hydrateWranglerTemplate(wranglerFileTemplate, config)

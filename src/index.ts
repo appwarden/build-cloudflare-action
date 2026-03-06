@@ -103,10 +103,14 @@ export async function main() {
   debug(`[generation] Generating middleware files`)
 
   // Generate the config and extract hostnames
-  const { configString, hostnames } =
-    hydrateGeneratedConfig(middlewareOptionsMap)
+  const {
+    configString,
+    hostnames,
+    debug: debugEnabled,
+  } = hydrateGeneratedConfig(middlewareOptionsMap)
 
   debug(`[generation] Extracted hostnames: ${hostnames.join(", ")}`)
+  debug(`[generation] Debug mode: ${debugEnabled}`)
 
   // write the app files
   await mkdir(middlewareDir, { recursive: true })
@@ -121,6 +125,7 @@ export async function main() {
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config.cloudflareAccountId,
         hostnames,
+        debug: debugEnabled,
       }),
     ],
     ["app.mjs", appTemplate],
