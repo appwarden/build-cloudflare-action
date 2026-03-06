@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.4.0
+
+### Minor Changes
+
+- [#13](https://github.com/appwarden/build-cloudflare-action/pull/13) [`d4f8b11`](https://github.com/appwarden/build-cloudflare-action/commit/d4f8b116499f0e32919674b6e44927bea169b1b6) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update @appwarden/middleware to version 3.11.0
+
 ## 1.3.0
 
 ### Minor Changes
