@@ -125,7 +125,6 @@ export async function main() {
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config.cloudflareAccountId,
         hostnames,
-        debug: debugEnabled,
       }),
     ],
     ["app.mjs", appTemplate],
