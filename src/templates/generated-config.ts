@@ -1,13 +1,13 @@
-export interface GeneratedConfig {
-  appwarden?: Record<string, { lockPageSlug?: string; debug?: boolean }>
-  csp?: Record<
-    string,
-    {
-      mode?: "disabled" | "report-only" | "enforced"
-      directives?: Record<string, string>
-    }
-  >
+export interface HostnameConfig {
+  lockPageSlug?: string
+  debug?: boolean
+  contentSecurityPolicy?: {
+    mode?: "disabled" | "report-only" | "enforced"
+    directives?: Record<string, string>
+  }
 }
+
+export type GeneratedConfig = Record<string, HostnameConfig>
 
 /**
  * Per-hostname middleware options returned from the API.
@@ -27,45 +27,19 @@ export interface HydratedGeneratedConfig {
 }
 
 /**
- * Extracts deduplicated hostnames from the generated config.
- * Hostnames are derived from both appwarden and csp config keys.
+ * Extracts hostnames from the generated config.
+ * Hostnames are the top-level keys in the config object.
  */
 export const extractHostnamesFromConfig = (
   config: GeneratedConfig,
 ): string[] => {
-  const hostnameSet = new Set<string>()
-
-  if (config.appwarden) {
-    Object.keys(config.appwarden).forEach((hostname) =>
-      hostnameSet.add(hostname),
-    )
-  }
-
-  if (config.csp) {
-    Object.keys(config.csp).forEach((hostname) => hostnameSet.add(hostname))
-  }
-
-  return Array.from(hostnameSet)
+  return Object.keys(config)
 }
 
 export const hydrateGeneratedConfig = (
   middlewareOptionsMap: Map<string, HostnameMiddlewareOptions>,
 ): HydratedGeneratedConfig => {
   const config: GeneratedConfig = {}
-
-  // Build appwarden multidomainConfig if any hostname has lock-page-slug or debug
-  const appwardenConfig: Record<
-    string,
-    { lockPageSlug?: string; debug?: boolean }
-  > = {}
-  // Build CSP config per hostname
-  const cspConfig: Record<
-    string,
-    {
-      mode?: "disabled" | "report-only" | "enforced"
-      directives?: Record<string, string>
-    }
-  > = {}
 
   // Extract debug value - if ANY hostname has debug enabled, enable it globally
   let debug = false
@@ -83,44 +57,41 @@ export const hydrateGeneratedConfig = (
     }
   }
 
+  // Build config with all properties nested under each hostname
   for (const [hostname, options] of middlewareOptionsMap) {
-    // Include hostname in appwarden config if it has lock-page-slug or debug
-    if (options?.["lock-page-slug"] || options?.debug !== undefined) {
-      if (!appwardenConfig[hostname]) {
-        appwardenConfig[hostname] = {}
-      }
+    const hostnameConfig: HostnameConfig = {}
 
-      if (options?.["lock-page-slug"]) {
-        appwardenConfig[hostname].lockPageSlug = options["lock-page-slug"]
-      }
-
-      if (options?.debug !== undefined) {
-        // Handle both string "true"/"false" and boolean values
-        const debugValue =
-          typeof options.debug === "string"
-            ? options.debug.toLowerCase() === "true"
-            : options.debug
-        appwardenConfig[hostname].debug = debugValue
-      }
+    // Add lock-page-slug if present
+    if (options?.["lock-page-slug"]) {
+      hostnameConfig.lockPageSlug = options["lock-page-slug"]
     }
 
+    // Add debug if present
+    if (options?.debug !== undefined) {
+      // Handle both string "true"/"false" and boolean values
+      const debugValue =
+        typeof options.debug === "string"
+          ? options.debug.toLowerCase() === "true"
+          : options.debug
+      hostnameConfig.debug = debugValue
+    }
+
+    // Add contentSecurityPolicy if present
     if (options?.["csp-mode"] || options?.["csp-directives"]) {
-      cspConfig[hostname] = {}
+      hostnameConfig.contentSecurityPolicy = {}
       if (options?.["csp-mode"]) {
-        cspConfig[hostname].mode = options["csp-mode"]
+        hostnameConfig.contentSecurityPolicy.mode = options["csp-mode"]
       }
       if (options?.["csp-directives"]) {
-        cspConfig[hostname].directives = options["csp-directives"]
+        hostnameConfig.contentSecurityPolicy.directives =
+          options["csp-directives"]
       }
     }
-  }
 
-  if (Object.keys(appwardenConfig).length > 0) {
-    config.appwarden = appwardenConfig
-  }
-
-  if (Object.keys(cspConfig).length > 0) {
-    config.csp = cspConfig
+    // Only add hostname to config if it has at least one property
+    if (Object.keys(hostnameConfig).length > 0) {
+      config[hostname] = hostnameConfig
+    }
   }
 
   const hostnames = extractHostnamesFromConfig(config)
