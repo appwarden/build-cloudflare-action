@@ -3,7 +3,6 @@ import { getRootDomain } from "../parse-domain"
 export interface WranglerTemplateConfig {
   cloudflareAccountId: string
   hostnames: string[]
-  debug: boolean
 }
 
 const generateRoutes = (hostnames: string[], env: string) =>
@@ -30,7 +29,6 @@ export const hydrateWranglerTemplate = (
       "{{PRODUCTION_ROUTES}}",
       generateRoutes(config.hostnames, "production"),
     )
-    .replaceAll("{{DEBUG}}", config.debug.toString())
 
 export const wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
@@ -51,11 +49,9 @@ head_sampling_rate = 1
 
 [env.staging.vars]
 APPWARDEN_API_HOSTNAME = "https://staging-api.appwarden.io"
-DEBUG = {{DEBUG}}
 
 {{PRODUCTION_ROUTES}}
 
 [env.production.vars]
 APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"
-DEBUG = {{DEBUG}}
 `

@@ -33423,7 +33423,7 @@ var hydrateWranglerTemplate = (template, config2) => template.replaceAll("{{ACCO
 ).replaceAll(
   "{{PRODUCTION_ROUTES}}",
   generateRoutes(config2.hostnames, "production")
-).replaceAll("{{DEBUG}}", config2.debug.toString());
+);
 var wranglerFileTemplate = `
 #:schema ../../node_modules/wrangler/config-schema.json
 name = "appwarden"
@@ -33443,13 +33443,11 @@ head_sampling_rate = 1
 
 [env.staging.vars]
 APPWARDEN_API_HOSTNAME = "https://staging-api.appwarden.io"
-DEBUG = {{DEBUG}}
 
 {{PRODUCTION_ROUTES}}
 
 [env.production.vars]
 APPWARDEN_API_HOSTNAME = "https://api.appwarden.io"
-DEBUG = {{DEBUG}}
 `;
 
 // src/utils.ts
@@ -33594,8 +33592,7 @@ async function main() {
       "wrangler.toml",
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config2.cloudflareAccountId,
-        hostnames,
-        debug: debugEnabled
+        hostnames
       })
     ],
     ["app.mjs", appTemplate],
