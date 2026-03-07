@@ -32828,19 +32828,6 @@ export default {
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     appwardenApiHostname: context.env.APPWARDEN_API_HOSTNAME,
     multidomainConfig: config,
-    middleware: {
-      before: [
-        ...Object.entries(config)
-          .filter(([, hostnameConfig]) => hostnameConfig.contentSecurityPolicy)
-          .map(([hostname, hostnameConfig]) =>
-            useContentSecurityPolicy({
-              hostname,
-              mode: hostnameConfig.contentSecurityPolicy.mode,
-              directives: hostnameConfig.contentSecurityPolicy.directives,
-            })
-          ),
-      ],
-    },
   })),
 }
 `;
