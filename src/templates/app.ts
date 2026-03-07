@@ -10,18 +10,7 @@ export default {
     debug: context.env.DEBUG,
     appwardenApiToken: context.env.APPWARDEN_API_TOKEN,
     appwardenApiHostname: context.env.APPWARDEN_API_HOSTNAME,
-    multidomainConfig: config.appwarden,
-    middleware: {
-      before: [
-        ...Object.entries(config.csp || {}).map(([hostname, cspConfig]) =>
-          useContentSecurityPolicy({
-            hostname,
-            mode: cspConfig.mode,
-            directives: cspConfig.directives,
-          })
-        ),
-      ],
-    },
+    multidomainConfig: config,
   })),
 }
 `
