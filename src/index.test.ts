@@ -3,11 +3,13 @@ import { mkdir, readdir, writeFile } from "fs/promises"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
 import { HostnameMiddlewareOptions } from "./templates/generated-config"
 import { getMiddlewareOptions } from "./utils"
+import { filterCloudflareHostnames } from "./cloudflare-nameservers"
 
 // Mock dependencies
 vi.mock("@actions/core")
 vi.mock("fs/promises")
 vi.mock("./utils")
+vi.mock("./cloudflare-nameservers")
 
 // Mock global constants that are injected by tsup
 vi.stubGlobal("MIDDLEWARE_VERSION", "1.0.0")
@@ -25,6 +27,7 @@ describe("index", () => {
     }
     const mockGetMiddlewareOptions = vi.mocked(getMiddlewareOptions)
 
+    const mockFilterCloudflareHostnames = vi.mocked(filterCloudflareHostnames)
     const mockConfig = {
       debug: false,
       cloudflareAccountId: "1234567890abcdef1234567890abcdef",
@@ -68,6 +71,9 @@ describe("index", () => {
 
       // Mock successful middleware options fetch - returns map of all hostnames
       mockGetMiddlewareOptions.mockResolvedValue(mockMiddlewareOptionsMap)
+
+      // Mock filterCloudflareHostnames to return all hostnames by default
+      mockFilterCloudflareHostnames.mockImplementation(async (hostnames) => hostnames)
     })
 
     afterEach(() => {

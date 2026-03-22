@@ -1,6 +1,7 @@
 import * as core from "@actions/core"
 import { mkdir, readdir, writeFile } from "fs/promises"
 import { ConfigSchema } from "./schema"
+import { filterCloudflareHostnames } from "./cloudflare-nameservers"
 import {
   appTemplate,
   hydrateGeneratedConfig,
@@ -110,6 +111,26 @@ export async function main() {
   } = hydrateGeneratedConfig(middlewareOptionsMap)
 
   debug(`[generation] Extracted hostnames: ${hostnames.join(", ")}`)
+
+  // Filter hostnames to only include those using Cloudflare nameservers
+  const cloudflareHostnames = await filterCloudflareHostnames(hostnames)
+  
+  if (cloudflareHostnames.length < hostnames.length) {
+    const filtered = hostnames.filter((h) => !cloudflareHostnames.includes(h))
+    core.warning(
+      `Filtered out ${filtered.length} non-Cloudflare domain(s): ${filtered.join(", ")}`,
+    )
+  }
+
+  if (cloudflareHostnames.length === 0) {
+    return core.setFailed(
+      `No hostnames are using Cloudflare nameservers. Please ensure your domains are configured to use Cloudflare nameservers.`,
+    )
+  }
+
+  debug(
+    `[generation] Cloudflare hostnames: ${cloudflareHostnames.join(", ")}`,
+  )
   debug(`[generation] Debug mode: ${debugEnabled}`)
 
   // write the app files
@@ -124,7 +145,7 @@ export async function main() {
       "wrangler.toml",
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config.cloudflareAccountId,
-        hostnames,
+        hostnames: cloudflareHostnames,
       }),
     ],
     ["app.mjs", appTemplate],
@@ -140,7 +161,7 @@ export async function main() {
 
   // Set outputs for downstream steps
   core.setOutput("middlewareVersion", middlewareVersion)
-  core.setOutput("hostnames", hostnames.join(", "))
+  core.setOutput("hostnames", cloudflareHostnames.join(", "))
 }
 
 main().catch((err) => {
