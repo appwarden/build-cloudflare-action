@@ -19088,6 +19088,9 @@ function setFailed(message) {
 function error(message, properties = {}) {
   issueCommand("error", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
+function warning(message, properties = {}) {
+  issueCommand("warning", toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
 
 // src/index.ts
 var import_promises = require("fs/promises");
@@ -32885,6 +32888,42 @@ var ConfigSchema = external_exports.object({
   debug: OptionalBooleanSchema.default(false)
 });
 
+// src/cloudflare-nameservers.ts
+var import_dns = require("dns");
+var CLOUDFLARE_NS_PATTERNS = [
+  /^[a-z0-9-]+\.ns\.cloudflare\.com$/i,
+  /^ns[0-9]+\.cloudflare\.com$/i
+];
+function isCloudflareNameserver(nameserver) {
+  const normalized = nameserver.toLowerCase().trim();
+  return CLOUDFLARE_NS_PATTERNS.some((pattern) => pattern.test(normalized));
+}
+async function hasCloudflareNameservers(hostname3) {
+  try {
+    const rootDomain = extractRootDomain(hostname3);
+    const nameservers = await import_dns.promises.resolveNs(rootDomain);
+    return nameservers.some((ns) => isCloudflareNameserver(ns));
+  } catch (error49) {
+    return false;
+  }
+}
+function extractRootDomain(hostname3) {
+  const parts = hostname3.toLowerCase().trim().split(".");
+  if (parts.length <= 2) {
+    return hostname3;
+  }
+  return parts.slice(-2).join(".");
+}
+async function filterCloudflareHostnames(hostnames) {
+  const results = await Promise.all(
+    hostnames.map(async (hostname3) => ({
+      hostname: hostname3,
+      isCloudflare: await hasCloudflareNameservers(hostname3)
+    }))
+  );
+  return results.filter((result) => result.isCloudflare).map((r) => r.hostname);
+}
+
 // src/templates/app.ts
 var appTemplate = `
 import {
@@ -33630,6 +33669,21 @@ async function main() {
     debug: debugEnabled
   } = hydrateGeneratedConfig(middlewareOptionsMap);
   debug2(`[generation] Extracted hostnames: ${hostnames.join(", ")}`);
+  const cloudflareHostnames = await filterCloudflareHostnames(hostnames);
+  if (cloudflareHostnames.length < hostnames.length) {
+    const filtered = hostnames.filter((h) => !cloudflareHostnames.includes(h));
+    warning(
+      `Filtered out ${filtered.length} non-Cloudflare domain(s): ${filtered.join(", ")}`
+    );
+  }
+  if (cloudflareHostnames.length === 0) {
+    return setFailed(
+      `No hostnames are using Cloudflare nameservers. Please ensure your domains are configured to use Cloudflare nameservers.`
+    );
+  }
+  debug2(
+    `[generation] Cloudflare hostnames: ${cloudflareHostnames.join(", ")}`
+  );
   debug2(`[generation] Debug mode: ${debugEnabled}`);
   await (0, import_promises.mkdir)(middlewareDir, { recursive: true });
   const projectFiles = [
@@ -33641,7 +33695,7 @@ async function main() {
       "wrangler.toml",
       hydrateWranglerTemplate(wranglerFileTemplate, {
         cloudflareAccountId: config2.cloudflareAccountId,
-        hostnames
+        hostnames: cloudflareHostnames
       })
     ],
     ["app.mjs", appTemplate],
@@ -33654,7 +33708,7 @@ async function main() {
   }
   debug2(`[generation] \u2705 Generation complete`);
   setOutput("middlewareVersion", middlewareVersion);
-  setOutput("hostnames", hostnames.join(", "));
+  setOutput("hostnames", cloudflareHostnames.join(", "));
 }
 main().catch((err) => {
   error(err);
