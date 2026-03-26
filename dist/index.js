@@ -33597,7 +33597,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "3.13.2";
+var middlewareVersion = "3.13.4";
 var Debug = (debug3) => (msg) => {
   if (debug3) {
     console.log(msg);
@@ -33673,7 +33673,7 @@ async function main() {
   if (cloudflareHostnames.length < hostnames.length) {
     const filtered = hostnames.filter((h) => !cloudflareHostnames.includes(h));
     warning(
-      `Filtered out ${filtered.length} non-Cloudflare domain(s): ${filtered.join(", ")}`
+      `Ignoring ${filtered.length} non-Cloudflare domain(s) in your domain configuration: ${filtered.join(", ")}`
     );
   }
   if (cloudflareHostnames.length === 0) {

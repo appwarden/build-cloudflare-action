@@ -118,7 +118,7 @@ export async function main() {
   if (cloudflareHostnames.length < hostnames.length) {
     const filtered = hostnames.filter((h) => !cloudflareHostnames.includes(h))
     core.warning(
-      `Filtered out ${filtered.length} non-Cloudflare domain(s): ${filtered.join(", ")}`,
+      `Ignoring ${filtered.length} non-Cloudflare domain(s) in your domain configuration: ${filtered.join(", ")}`,
     )
   }
 
