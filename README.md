@@ -18,7 +18,7 @@ Easy-to-use GitHub Action to build Appwarden for deployment to your Cloudflare p
 
 ## Why Use This Action?
 
-This GitHub Action is the **official and recommended way** to install [Appwarden](https://appwarden.io/docs) on any website deployed on Cloudflare.
+This GitHub Action deploys the Appwarden universal middleware on any website deployed on Cloudflare.
 
 ### Automatic Updates
 
