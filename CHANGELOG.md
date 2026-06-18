@@ -1,5 +1,15 @@
 # @appwarden/build-cloudflare-action
 
+## 1.7.0
+
+### Minor Changes
+
+- [#76](https://github.com/appwarden/build-cloudflare-action/pull/76) [`7ad6b69`](https://github.com/appwarden/build-cloudflare-action/commit/7ad6b69404f2063e94a8a7e0c343d975626d8a43) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update @appwarden/middleware to version 3.16.0
+
+- [`35a8eb8`](https://github.com/appwarden/build-cloudflare-action/commit/35a8eb8c72211299aebb8dbca4af7343e0705861) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Filter non-cloudflare domains from configuration
+
+- [#37](https://github.com/appwarden/build-cloudflare-action/pull/37) [`16dd216`](https://github.com/appwarden/build-cloudflare-action/commit/16dd216b82b0c13742d29c930cf7c3c1f800e9e4) Thanks [@github-actions](https://github.com/apps/github-actions)! - Update @appwarden/middleware to version 3.13.4
+
 ## 1.6.0
 
 ### Minor Changes
