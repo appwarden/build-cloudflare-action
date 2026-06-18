@@ -106,4 +106,3 @@ export async function filterCloudflareHostnames(
 
   return results.filter((result) => result.isCloudflare).map((r) => r.hostname)
 }
-

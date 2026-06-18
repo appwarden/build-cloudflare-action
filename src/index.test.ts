@@ -73,7 +73,9 @@ describe("index", () => {
       mockGetMiddlewareOptions.mockResolvedValue(mockMiddlewareOptionsMap)
 
       // Mock filterCloudflareHostnames to return all hostnames by default
-      mockFilterCloudflareHostnames.mockImplementation(async (hostnames) => hostnames)
+      mockFilterCloudflareHostnames.mockImplementation(
+        async (hostnames) => hostnames,
+      )
     })
 
     afterEach(() => {

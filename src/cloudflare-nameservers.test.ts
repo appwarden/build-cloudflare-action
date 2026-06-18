@@ -87,10 +87,7 @@ describe("cloudflare-nameservers", () => {
     })
 
     it("should return false when domain uses non-Cloudflare nameservers", async () => {
-      mockResolveNs.mockResolvedValue([
-        "ns1.google.com",
-        "ns2.google.com",
-      ])
+      mockResolveNs.mockResolvedValue(["ns1.google.com", "ns2.google.com"])
 
       const result = await hasCloudflareNameservers("example.com")
 
@@ -162,4 +159,3 @@ describe("cloudflare-nameservers", () => {
     })
   })
 })
-
