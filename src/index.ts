@@ -114,7 +114,7 @@ export async function main() {
 
   // Filter hostnames to only include those using Cloudflare nameservers
   const cloudflareHostnames = await filterCloudflareHostnames(hostnames)
-  
+
   if (cloudflareHostnames.length < hostnames.length) {
     const filtered = hostnames.filter((h) => !cloudflareHostnames.includes(h))
     core.warning(
@@ -128,9 +128,7 @@ export async function main() {
     )
   }
 
-  debug(
-    `[generation] Cloudflare hostnames: ${cloudflareHostnames.join(", ")}`,
-  )
+  debug(`[generation] Cloudflare hostnames: ${cloudflareHostnames.join(", ")}`)
   debug(`[generation] Debug mode: ${debugEnabled}`)
 
   // write the app files
