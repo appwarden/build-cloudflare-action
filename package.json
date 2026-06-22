@@ -34,26 +34,26 @@
     "check:ci": "npm run check:types && npm run check:prettier"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
+    "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
     "parse-domain": "^8.3.0",
-    "yaml": "2.8.3",
-    "zod": "^4.3.6"
+    "yaml": "2.9.0",
+    "zod": "^4.4.3"
   },
   "overrides": {
     "js-yaml": "4.2.0"
   },
   "devDependencies": {
-    "@changesets/changelog-github": "^0.6.0",
+    "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
-    "@cloudflare/workers-types": "^4.20260317.1",
+    "@cloudflare/workers-types": "^4.20260621.1",
     "@types/node": "^25.5.0",
-    "@vitest/coverage-v8": "^4.1.0",
-    "lefthook": "^2.1.4",
-    "prettier": "^3.8.1",
-    "semver": "^7.7.4",
+    "@vitest/coverage-v8": "^4.1.9",
+    "lefthook": "^2.1.9",
+    "prettier": "^3.8.4",
+    "semver": "^7.8.5",
     "tsup": "8.5.1",
-    "typescript": "^5.9.3",
+    "typescript": "^6.0.2",
     "vitest": "^4.0.18"
   }
 }
