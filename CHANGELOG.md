@@ -1,5 +1,13 @@
 # @appwarden/build-cloudflare-action
 
+## 1.8.1
+
+### Patch Changes
+
+- [#85](https://github.com/appwarden/build-cloudflare-action/pull/85) [`97268e3`](https://github.com/appwarden/build-cloudflare-action/commit/97268e30cef924b77505241d466561d8291ce8b7) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Fix action name to comply with GitHub Marketplace naming requirements
+
+  The action name in `action.yml` previously contained `@` and `/` characters (`@appwarden/build-cloudflare-action`), which are not allowed by the GitHub Marketplace. This changes the name to a marketplace-friendly format so the action can be published.
+
 ## 1.8.0
 
 ### Minor Changes
