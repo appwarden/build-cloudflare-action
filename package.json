@@ -38,7 +38,7 @@
     "@actions/exec": "^3.0.0",
     "parse-domain": "^8.3.0",
     "yaml": "2.8.3",
-    "zod": "^4.3.6"
+    "zod": "^4.4.3"
   },
   "overrides": {
     "js-yaml": "4.2.0"
