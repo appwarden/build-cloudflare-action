@@ -1,4 +1,4 @@
-name: "@appwarden/build-cloudflare-action"
+name: "Build Appwarden Cloudflare Action"
 branding:
   icon: cloud
   color: orange
