@@ -34,7 +34,7 @@
     "check:ci": "npm run check:types && npm run check:prettier"
   },
   "dependencies": {
-    "@actions/core": "^3.0.0",
+    "@actions/core": "^3.0.1",
     "@actions/exec": "^3.0.0",
     "parse-domain": "^8.3.0",
     "yaml": "2.8.3",
