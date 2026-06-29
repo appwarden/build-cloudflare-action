@@ -47,7 +47,7 @@
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.0",
     "@cloudflare/workers-types": "^4.20260621.1",
-    "@types/node": "^25.5.0",
+    "@types/node": "^26.0.1",
     "@vitest/coverage-v8": "^4.1.9",
     "lefthook": "^2.1.9",
     "prettier": "^3.8.4",
