@@ -4,6 +4,7 @@ import { ConfigSchema } from "./schema"
 import { filterCloudflareHostnames } from "./cloudflare-nameservers"
 import {
   appTemplate,
+  HostnameMiddlewareOptions,
   hydrateGeneratedConfig,
   hydratePackageJson,
   hydrateWranglerTemplate,
@@ -49,6 +50,7 @@ export async function main() {
 
   const maybeConfig = await ConfigSchema.safeParseAsync({
     debug: core.getInput("debug"),
+    hostnames: core.getInput("hostnames"),
     cloudflareAccountId: core.getInput("cloudflare-account-id"),
     appwardenApiToken: core.getInput("appwarden-api-token"),
   })
@@ -91,6 +93,38 @@ export async function main() {
     return core.setFailed(
       `No Appwarden middleware configurations found. Please ensure you have configured at least one domain.`,
     )
+  }
+
+  // If hostnames input is provided, filter the fetched configurations to only those hostnames
+  if (config.hostnames) {
+    debug(`[config] Filtering configurations to requested hostnames`)
+
+    const filteredMap = new Map<string, HostnameMiddlewareOptions>()
+    const requestedHostnames = config.hostnames
+    const availableHostnames = Array.from(middlewareOptionsMap.keys())
+
+    for (const hostname of requestedHostnames) {
+      if (middlewareOptionsMap.has(hostname)) {
+        filteredMap.set(hostname, middlewareOptionsMap.get(hostname)!)
+      }
+    }
+
+    const missingHostnames = requestedHostnames.filter(
+      (h) => !availableHostnames.includes(h),
+    )
+    if (missingHostnames.length > 0) {
+      core.warning(
+        `Ignoring ${missingHostnames.length} requested hostname(s) not found in your domain configuration: ${missingHostnames.join(", ")}`,
+      )
+    }
+
+    if (filteredMap.size === 0) {
+      return core.setFailed(
+        `None of the requested hostnames were found in your Appwarden domain configuration: ${requestedHostnames.join(", ")}`,
+      )
+    }
+
+    middlewareOptionsMap = filteredMap
   }
 
   debug(
