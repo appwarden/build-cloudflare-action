@@ -9,6 +9,9 @@ inputs:
     description: Enable debug mode. Defaults to 'false'.
     required: false
     default: "false"
+  hostnames:
+    description: Optional comma-separated list of hostnames to build. If omitted, all configured hostnames are built.
+    required: false
   cloudflare-account-id:
     description: Cloudflare account id
     required: true

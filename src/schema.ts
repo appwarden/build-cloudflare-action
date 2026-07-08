@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { isValidHostname } from "./parse-domain"
 
 const OptionalBooleanSchema = z
   .union([z.string(), z.boolean(), z.undefined()])
@@ -33,8 +34,39 @@ const ApiTokenSchema = z
       "appwardenApiToken appears to be invalid (too short). Please check your API token.",
   })
 
+// Optional comma-separated list of hostnames to filter which domains are built
+const HostnamesSchema = z
+  .union([z.string(), z.undefined()])
+  .transform((val) => {
+    if (val === undefined || val.trim() === "") {
+      return undefined
+    }
+
+    return val
+      .split(",")
+      .map((h) => h.trim())
+      .filter((h) => h.length > 0)
+  })
+  .refine(
+    async (hostnames) => {
+      if (hostnames === undefined) {
+        return true
+      }
+
+      const results = await Promise.all(
+        hostnames.map((h) => isValidHostname(h)),
+      )
+      return results.every((r) => Boolean(r))
+    },
+    {
+      message:
+        "All hostnames must be valid domain names. (e.g. `app.example.com,staging.example.com`)",
+    },
+  )
+
 export const ConfigSchema = z.object({
   cloudflareAccountId: CloudflareAccountIdSchema,
   appwardenApiToken: ApiTokenSchema,
   debug: OptionalBooleanSchema.default(false),
+  hostnames: HostnamesSchema.optional(),
 })
