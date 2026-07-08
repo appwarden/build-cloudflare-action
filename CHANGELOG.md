@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.9.0
+
+### Minor Changes
+
+- [#94](https://github.com/appwarden/build-cloudflare-action/pull/94) [`4acd40c`](https://github.com/appwarden/build-cloudflare-action/commit/4acd40c10868ed22016eabf008887249eebe3599) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Add optional `hostnames` input to filter which configured domains are built. When provided, only the requested hostnames are included in the generated middleware. Hostnames not found in the domain configuration are skipped with a warning.
+
 ## 1.8.1
 
 ### Patch Changes
