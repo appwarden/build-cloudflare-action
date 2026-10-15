@@ -34427,6 +34427,13 @@ var packageJsonTemplate = `
 }
 `;
 
+// src/templates/pnpm-workspace.ts
+var pnpmWorkspaceFileTemplate = `
+allowBuilds:
+  esbuild: true
+  workerd: true
+`;
+
 // src/templates/wrangler-toml.ts
 var generateRoutes = (hostnames, env) => hostnames.map(
   (hostname3) => `[[env.${env}.routes]]
@@ -34525,7 +34532,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "3.17.0";
+var middlewareVersion = "3.17.9";
 var Debug = (debug3) => (msg) => {
   if (debug3) {
     console.log(msg);
@@ -34651,7 +34658,8 @@ async function main() {
       })
     ],
     ["app.mjs", appTemplate],
-    ["generated-config.mjs", configString]
+    ["generated-config.mjs", configString],
+    ["pnpm-workspace.yaml", pnpmWorkspaceFileTemplate]
   ];
   for (const [fileName, fileContent] of projectFiles) {
     await (0, import_promises.writeFile)(`${middlewareDir}/${fileName}`, fileContent);
