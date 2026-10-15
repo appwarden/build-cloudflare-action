@@ -1,5 +1,11 @@
 # @appwarden/build-cloudflare-action
 
+## 1.9.1
+
+### Patch Changes
+
+- [#101](https://github.com/appwarden/build-cloudflare-action/pull/101) [`3d5f0ec`](https://github.com/appwarden/build-cloudflare-action/commit/3d5f0ec15f0753010d87f00a3281c1e87a479d41) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Generate a `pnpm-workspace.yaml` in the generated middleware project so the project approves the build scripts of `esbuild` and `workerd`. The generated project is installed on its own and cannot inherit the consuming repository's `allowBuilds` settings, so `pnpm add wrangler` (run by `cloudflare/wrangler-action`) failed with `ERR_PNPM_IGNORED_BUILDS` on pnpm 11 and later.
+
 ## 1.9.0
 
 ### Minor Changes
