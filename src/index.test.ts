@@ -133,7 +133,7 @@ describe("index", () => {
       )
 
       // Verify file generation
-      expect(mockFs.writeFile).toHaveBeenCalledTimes(4)
+      expect(mockFs.writeFile).toHaveBeenCalledTimes(5)
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         ".appwarden/generated-middleware/package.json",
         expect.stringContaining('"version": "1.0.0"'),
@@ -149,6 +149,14 @@ describe("index", () => {
       expect(mockFs.writeFile).toHaveBeenCalledWith(
         ".appwarden/generated-middleware/generated-config.mjs",
         expect.any(String),
+      )
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        ".appwarden/generated-middleware/pnpm-workspace.yaml",
+        expect.stringContaining("esbuild: true"),
+      )
+      expect(mockFs.writeFile).toHaveBeenCalledWith(
+        ".appwarden/generated-middleware/pnpm-workspace.yaml",
+        expect.stringContaining("workerd: true"),
       )
 
       // Verify outputs are set

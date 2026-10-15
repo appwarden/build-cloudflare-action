@@ -9,6 +9,7 @@ import {
   hydratePackageJson,
   hydrateWranglerTemplate,
   packageJsonTemplate,
+  pnpmWorkspaceFileTemplate,
   wranglerFileTemplate,
 } from "./templates"
 import { getMiddlewareOptions } from "./utils"
@@ -182,6 +183,7 @@ export async function main() {
     ],
     ["app.mjs", appTemplate],
     ["generated-config.mjs", configString],
+    ["pnpm-workspace.yaml", pnpmWorkspaceFileTemplate],
   ]
 
   for (const [fileName, fileContent] of projectFiles) {
