@@ -1,3 +1,4 @@
+import { writeFileSync } from "node:fs"
 import { defineConfig } from "tsup"
 
 const v = (value: string | number | boolean) => JSON.stringify(value)
@@ -12,6 +13,10 @@ export default defineConfig(async () => {
   if (!middlewareVersion) {
     throw new Error("Failed to fetch latest middleware version")
   }
+
+  // Record the version we pinned in a committed file so the scheduled
+  // middleware-sync workflow can detect drift from the latest published version.
+  writeFileSync(".middleware-version", `${middlewareVersion}\n`)
 
   console.log(`Building with @appwarden/middleware@${middlewareVersion}\n`)
 

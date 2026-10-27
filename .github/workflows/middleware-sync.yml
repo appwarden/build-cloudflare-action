@@ -1,0 +1,150 @@
+name: Sync Middleware Version
+
+# Keeps the @appwarden/middleware version pinned in dist/ in sync with the
+# latest version published to npm.
+#
+# This is pull-based on purpose. It does not depend on cross-repo events from
+# appwarden/middleware: GitHub suppresses workflow runs for events created with
+# the repository GITHUB_TOKEN, so a release published by that repo's own release
+# workflow can no longer trigger anything here.
+
+on:
+  schedule:
+    # Every 3 hours
+    - cron: "0 */3 * * *"
+  workflow_dispatch:
+  repository_dispatch:
+    types: [middleware-release]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    name: Sync to latest @appwarden/middleware
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6.4.0
+        with:
+          node-version: "lts/*"
+
+      - name: Install dependencies
+        run: |
+          # Set safer npm config
+          npm config set ignore-scripts true
+          npm config set audit true
+
+          # Install dependencies with frozen lockfile for reproducibility
+          npm ci --ignore-scripts
+        env:
+          # Disable progress bars for cleaner logs
+          NPM_CONFIG_PROGRESS: "false"
+
+      - name: Check for middleware drift
+        id: drift
+        run: |
+          # The build resolves the latest published middleware version and records
+          # it in .middleware-version, so any change under dist/ means we drifted.
+          BUILD_OUTPUT=$(npm run build --silent 2>&1)
+          echo "$BUILD_OUTPUT"
+
+          VERSION=$(echo "$BUILD_OUTPUT" | grep -oP 'Building with @appwarden/middleware@\K[0-9]+\.[0-9]+\.[0-9]+' || true)
+
+          if [[ -z "$VERSION" ]]; then
+            echo "::error::Failed to extract middleware version from build output"
+            exit 1
+          fi
+
+          echo "middleware_version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          if [[ -n "$(git status --porcelain -- dist .middleware-version)" ]]; then
+            echo "in_sync=false" >> "$GITHUB_OUTPUT"
+            echo "Drift detected: building with @appwarden/middleware@$VERSION changed dist/"
+          else
+            echo "in_sync=true" >> "$GITHUB_OUTPUT"
+            echo "In sync with @appwarden/middleware@$VERSION"
+          fi
+
+      - name: Open or update sync pull request
+        if: steps.drift.outputs.in_sync == 'false'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          VERSION="${{ steps.drift.outputs.middleware_version }}"
+          BRANCH="chore/middleware-sync"
+          TITLE="chore(release): sync @appwarden/middleware to $VERSION"
+
+          git fetch origin "$BRANCH" 2>/dev/null || true
+
+          # The middleware version the existing sync branch was built with, if any
+          PREVIOUS_VERSION=""
+          if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null; then
+            PREVIOUS_VERSION=$(git show "origin/$BRANCH:.middleware-version" 2>/dev/null || true)
+          fi
+
+          OPEN_PR=$(gh pr list --head "$BRANCH" --state open --json number --jq 'length')
+
+          # Respect a deliberate close: never re-propose a version that was
+          # already reviewed and closed without merging.
+          if [[ "$PREVIOUS_VERSION" == "$VERSION" && "$OPEN_PR" == "0" ]]; then
+            echo "Version $VERSION was already proposed and closed without merging; skipping."
+            exit 0
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+
+          cat > .changeset/middleware-sync.md << EOF
+          ---
+          "@appwarden/build-cloudflare-action": minor
+          ---
+
+          Sync @appwarden/middleware to version $VERSION
+          EOF
+
+          git add dist .middleware-version .changeset/middleware-sync.md
+          git commit -m "$TITLE"
+
+          if git rev-parse --verify --quiet "origin/$BRANCH" >/dev/null &&
+            git diff --quiet "origin/$BRANCH" HEAD; then
+            echo "Branch $BRANCH already contains $VERSION"
+          else
+            git push --force origin "$BRANCH"
+          fi
+
+          PR_BODY=$(cat << EOF
+          ## Middleware sync
+
+          \`@appwarden/middleware\` is published at **$VERSION**, but the version bundled into \`dist/\` was older.
+
+          ### Changes
+          - Rebuilt \`dist/\` against \`@appwarden/middleware@$VERSION\`
+          - Recorded the pinned version in \`.middleware-version\`
+          - Added a changeset for the version bump
+
+          ---
+          *Opened by the \`middleware-sync\` workflow, which runs every 3 hours.*
+          EOF
+          )
+
+          if [[ "$OPEN_PR" != "0" ]]; then
+            gh pr edit "$BRANCH" --title "$TITLE" --body "$PR_BODY"
+          else
+            gh pr create --base main --head "$BRANCH" --title "$TITLE" --body "$PR_BODY"
+          fi
