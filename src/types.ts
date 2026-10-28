@@ -1,5 +1,6 @@
 import { z } from "zod"
 import { ConfigSchema } from "./schema"
+import type { HostnameMiddlewareOptions } from "./templates/generated-config"
 
 type AnyRecord = Record<string, unknown>
 
@@ -23,12 +24,7 @@ export interface AppwardenConfig {
 
 export interface Middleware {
   hostname: string
-  options?: {
-    debug: boolean | string
-    "lock-page-slug": string
-    "csp-mode"?: "disabled" | "report-only" | "enforced"
-    "csp-directives": Record<string, string> | string
-  }
+  options?: HostnameMiddlewareOptions
 }
 
 export type Config = z.infer<typeof ConfigSchema>

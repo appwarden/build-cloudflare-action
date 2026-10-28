@@ -39,9 +39,11 @@ describe("index", () => {
         [
           "app.example.com",
           {
-            "lock-page-slug": "/maintenance",
-            "csp-mode": "enforced",
-            "csp-directives": { "default-src": "'self'" },
+            website: {
+              "lock-page-slug": "/maintenance",
+              "csp-mode": "enforced",
+              "csp-directives": { "default-src": "'self'" },
+            },
           },
         ],
       ],
@@ -54,25 +56,31 @@ describe("index", () => {
       [
         "app.example.com",
         {
-          "lock-page-slug": "/maintenance",
-          "csp-mode": "enforced",
-          "csp-directives": { "default-src": "'self'" },
+          website: {
+            "lock-page-slug": "/maintenance",
+            "csp-mode": "enforced",
+            "csp-directives": { "default-src": "'self'" },
+          },
         },
       ],
       [
         "staging.example.com",
         {
-          "lock-page-slug": "/maintenance",
-          "csp-mode": "report-only",
-          "csp-directives": { "default-src": "'self'" },
+          website: {
+            "lock-page-slug": "/maintenance",
+            "csp-mode": "report-only",
+            "csp-directives": { "default-src": "'self'" },
+          },
         },
       ],
       [
         "api.example.com",
         {
-          "lock-page-slug": "/maintenance",
-          "csp-mode": "disabled",
-          "csp-directives": { "default-src": "'self'" },
+          website: {
+            "lock-page-slug": "/maintenance",
+            "csp-mode": "disabled",
+            "csp-directives": { "default-src": "'self'" },
+          },
         },
       ],
     ])
