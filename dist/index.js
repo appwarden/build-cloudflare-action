@@ -39984,20 +39984,40 @@ var hydrateGeneratedConfig = (middlewareOptionsMap) => {
   }
   for (const [hostname3, options2] of middlewareOptionsMap) {
     const hostnameConfig = {};
-    if (options2?.["lock-page-slug"]) {
-      hostnameConfig.lockPageSlug = options2["lock-page-slug"];
-    }
     if (options2?.debug !== void 0) {
       const debugValue = typeof options2.debug === "string" ? options2.debug.toLowerCase() === "true" : options2.debug;
       hostnameConfig.debug = debugValue;
     }
-    if (options2?.["csp-mode"] || options2?.["csp-directives"]) {
-      hostnameConfig.contentSecurityPolicy = {};
-      if (options2?.["csp-mode"]) {
-        hostnameConfig.contentSecurityPolicy.mode = options2["csp-mode"];
+    if (options2?.["bypass-paths"]?.length) {
+      hostnameConfig.bypassPaths = options2["bypass-paths"];
+    }
+    const website = options2?.website;
+    if (website) {
+      const websiteConfig = {};
+      if (website["lock-page-slug"]) {
+        websiteConfig.lockPageSlug = website["lock-page-slug"];
       }
-      if (options2?.["csp-directives"]) {
-        hostnameConfig.contentSecurityPolicy.directives = options2["csp-directives"];
+      if (website["csp-mode"]) {
+        websiteConfig.cspMode = website["csp-mode"];
+      }
+      if (website["csp-directives"]) {
+        websiteConfig.cspDirectives = website["csp-directives"];
+      }
+      if (Object.keys(websiteConfig).length > 0) {
+        hostnameConfig.website = websiteConfig;
+      }
+    }
+    const api = options2?.api;
+    if (api) {
+      const apiConfig = {};
+      if (api["base-paths"]?.length) {
+        apiConfig.basePaths = api["base-paths"];
+      }
+      if (api.response) {
+        apiConfig.response = api.response;
+      }
+      if (Object.keys(apiConfig).length > 0) {
+        hostnameConfig.api = apiConfig;
       }
     }
     if (Object.keys(hostnameConfig).length > 0) {
@@ -40010,7 +40030,7 @@ var hydrateGeneratedConfig = (middlewareOptionsMap) => {
 
 export const config = ${JSON.stringify(config2, null, 2)}
 `;
-  return { configString, hostnames, debug: debug3 };
+  return { configString, config: config2, hostnames, debug: debug3 };
 };
 
 // src/templates/package-json.ts
