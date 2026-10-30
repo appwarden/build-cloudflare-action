@@ -40153,7 +40153,7 @@ ${formattedError}`
 };
 
 // src/index.ts
-var middlewareVersion = "3.17.13";
+var middlewareVersion = "3.17.14";
 var Debug = (debug3) => (msg) => {
   if (debug3) {
     console.log(msg);
