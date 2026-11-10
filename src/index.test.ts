@@ -130,6 +130,7 @@ describe("index", () => {
       expect(mockGetMiddlewareOptions).toHaveBeenCalledWith(
         mockConfig.appwardenApiToken,
         expect.any(Function),
+        undefined,
       )
 
       // Verify directory creation
@@ -383,6 +384,13 @@ describe("index", () => {
       await main()
 
       expect(mockCore.setFailed).not.toHaveBeenCalled()
+      // The requested hostnames are passed to the config fetch so it can scope
+      // each request with `?fqdn=`.
+      expect(mockGetMiddlewareOptions).toHaveBeenCalledWith(
+        mockConfig.appwardenApiToken,
+        expect.any(Function),
+        ["app.example.com", "staging.example.com"],
+      )
       expect(mockCore.setOutput).toHaveBeenCalledWith(
         "hostnames",
         "app.example.com, staging.example.com",

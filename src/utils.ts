@@ -14,18 +14,26 @@ const isWellFormedToken = (token: string): boolean => {
 }
 
 /**
- * Fetches all middleware configurations for the account.
- * Returns a map of hostname -> middleware options.
+ * Fetches one page of middleware configurations from the API.
+ *
+ * Passing `fqdn` sets `?fqdn=`, which scopes the response to that hostname and
+ * lets a domain-restricted API token read it — such a token is refused a request
+ * that names no domain (`403 DOMAIN_NOT_PERMITTED`).
  */
-export const getMiddlewareOptions = async (
+const fetchMiddlewareConfig = async (
   apiToken: string,
-  debug: DebugLogger = () => {},
-): Promise<Map<string, HostnameMiddlewareOptions>> => {
+  fqdn: string | undefined,
+  debug: DebugLogger,
+): Promise<unknown> => {
   const url = new URL(
     `/v1/appwarden/config`,
     // @ts-expect-error tsup config
     APPWARDEN_API_HOSTNAME,
   )
+
+  if (fqdn) {
+    url.searchParams.set("fqdn", fqdn)
+  }
 
   debug(`[config] Request URL: ${url.toString()}`)
   debug(
@@ -63,21 +71,46 @@ export const getMiddlewareOptions = async (
   const result: unknown = await res.json()
   debug(`[config] Response body: ${JSON.stringify(result, null, 2)}`)
 
-  const parsed = MiddlewareConfigResponseSchema.safeParse(result)
+  return result
+}
 
-  if (!parsed.success) {
-    // If parsing fails, the API response structure is unexpected
-    const formattedError = JSON.stringify(parsed.error.format(), null, 2)
-    // Throw an error with validation details so users can identify the issue
-    throw new Error(
-      `API response validation failed. The middleware configuration contains invalid data:\n${formattedError}`,
-    )
-  }
+/**
+ * Fetches middleware configurations and returns a map of hostname -> options.
+ *
+ * When `hostnames` is provided, each hostname is fetched in its own request with
+ * `?fqdn=` set, so a domain-restricted API token — which the API refuses on a
+ * request that names no domain — can read it. When `hostnames` is omitted, the
+ * whole account configuration is fetched in a single request, which only an
+ * unrestricted token may read.
+ */
+export const getMiddlewareOptions = async (
+  apiToken: string,
+  debug: DebugLogger = () => {},
+  hostnames?: string[],
+): Promise<Map<string, HostnameMiddlewareOptions>> => {
+  // One request per requested hostname; a single unscoped request otherwise.
+  const targets: (string | undefined)[] =
+    hostnames && hostnames.length > 0 ? hostnames : [undefined]
 
   const middlewareOptionsMap = new Map<string, HostnameMiddlewareOptions>()
 
-  for (const item of parsed.data.content) {
-    middlewareOptionsMap.set(item.url, item.options)
+  for (const fqdn of targets) {
+    const result = await fetchMiddlewareConfig(apiToken, fqdn, debug)
+
+    const parsed = MiddlewareConfigResponseSchema.safeParse(result)
+
+    if (!parsed.success) {
+      // If parsing fails, the API response structure is unexpected
+      const formattedError = JSON.stringify(parsed.error.format(), null, 2)
+      // Throw an error with validation details so users can identify the issue
+      throw new Error(
+        `API response validation failed. The middleware configuration contains invalid data:\n${formattedError}`,
+      )
+    }
+
+    for (const item of parsed.data.content) {
+      middlewareOptionsMap.set(item.url, item.options)
+    }
   }
 
   return middlewareOptionsMap
