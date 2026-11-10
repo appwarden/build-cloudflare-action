@@ -1,5 +1,23 @@
 # @appwarden/build-cloudflare-action
 
+## 1.11.0
+
+### Minor Changes
+
+- [#112](https://github.com/appwarden/build-cloudflare-action/pull/112) [`576e7c8`](https://github.com/appwarden/build-cloudflare-action/commit/576e7c844ea31304f5c9cd38e7cb78b46e80ab39) Thanks [@github-actions](https://github.com/apps/github-actions)! - Sync @appwarden/middleware to version 3.17.15
+
+### Patch Changes
+
+- [#119](https://github.com/appwarden/build-cloudflare-action/pull/119) [`b483bca`](https://github.com/appwarden/build-cloudflare-action/commit/b483bca52fe29aa601c04bfa04552a615f02f484) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Scope the middleware configuration request to the requested hostnames with `?fqdn=`, so the action works with a domain-restricted Appwarden API token.
+
+  When the `hostnames` input is set, each hostname is now fetched in its own request carrying `?fqdn=`. The API refuses a domain-restricted token on a request that names no domain (`403 DOMAIN_NOT_PERMITTED`), which previously made the action fail for such tokens. When `hostnames` is omitted, the whole account configuration is still fetched in a single request, which only an unrestricted token may read.
+
+  Requested hostnames are now canonicalized (lower case, no port, no trailing dot) before use, and a token that is not a bare hostname — carrying a scheme, port, path, query or fragment — is rejected at input validation. Previously such values passed validation and were sent verbatim, so the API's exact `?fqdn=` match silently returned nothing and the hostname was reported as "not found".
+
+- [#120](https://github.com/appwarden/build-cloudflare-action/pull/120) [`6a3bf22`](https://github.com/appwarden/build-cloudflare-action/commit/6a3bf22f23330ad5be2ecfb767a1de3efc87a784) Thanks [@stevefrench39](https://github.com/stevefrench39)! - Harden the pinned `@appwarden/middleware` version handling.
+
+  The version bundled into `dist/` is pinned in `.middleware-version`, and the build now requires that pin to be an exact semver version: a typo (`3.17`, `v3.17.15`, a stray token) or a missing file fails the build with a clear error instead of silently resolving a version over the network. The scheduled middleware-sync workflow also strips `\r` when reading the pin and only treats a pin _behind_ npm as drift, so a CRLF checkout or a pin ahead of npm no longer opens a spurious sync pull request.
+
 ## 1.10.0
 
 ### Minor Changes
