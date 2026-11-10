@@ -69,7 +69,7 @@ jobs:
         uses: teunmooij/github-versioned-release@v1.2.1
         with:
           template: javascript-action
-          version: ${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}
+          version: ${{ fromJSON(steps.changesets.outputs.published-packages)[0].version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -81,7 +81,7 @@ jobs:
 
       - name: Tag new major version target
         if: steps.changesets.outputs.published == 'true'
-        run: git tag -f ${{ env.MAJOR_VERSION }} v${{ fromJSON(steps.changesets.outputs.publishedPackages)[0].version }}
+        run: git tag -f ${{ env.MAJOR_VERSION }} v${{ fromJSON(steps.changesets.outputs.published-packages)[0].version }}
 
       - name: Push new tag
         if: steps.changesets.outputs.published == 'true'
