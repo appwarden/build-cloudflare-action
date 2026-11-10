@@ -47,8 +47,8 @@ jobs:
         id: changesets
         uses: changesets/action@v2.1.2
         with:
-          createGithubReleases: true
-          publish: npx changeset tag
+          create-github-releases: true
+          publish-script: npx changeset tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
