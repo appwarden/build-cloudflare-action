@@ -39848,9 +39848,15 @@ var parseDomain = (hostname3, options2) => {
 
 // src/parse-domain.ts
 var parseHostname = (hostname3) => parseDomain(fromUrl(hostname3));
-var isValidHostname = async (maybeHostname) => {
+var canonicalizeHostname = (maybeHostname) => {
   const parseResult = parseHostname(maybeHostname);
-  return parseResult.type === ParseResultType.Listed && parseResult.domain;
+  if (parseResult.type !== ParseResultType.Listed || !parseResult.domain) {
+    return null;
+  }
+  const { subDomains, domain: domain2, topLevelDomains } = parseResult;
+  const canonical = [...subDomains, domain2, ...topLevelDomains].join(".").toLowerCase();
+  const bare = maybeHostname.trim().toLowerCase().replace(/\.$/, "");
+  return bare === canonical ? canonical : null;
 };
 var getDomainMetadata = (thing) => {
   const parseResult = parseHostname(thing);
@@ -39890,21 +39896,14 @@ var HostnamesSchema = external_exports.union([external_exports.string(), externa
   if (val === void 0 || val.trim() === "") {
     return void 0;
   }
-  return val.split(",").map((h) => h.trim()).filter((h) => h.length > 0);
-}).refine(
-  async (hostnames) => {
-    if (hostnames === void 0) {
-      return true;
-    }
-    const results = await Promise.all(
-      hostnames.map((h) => isValidHostname(h))
-    );
-    return results.every((r) => Boolean(r));
-  },
+  const hostnames = val.split(",").map((h) => h.trim()).filter((h) => h.length > 0);
+  return hostnames.length > 0 ? hostnames : void 0;
+}).transform((hostnames) => hostnames?.map(canonicalizeHostname)).refine(
+  (hostnames) => hostnames === void 0 || hostnames.every((h) => h !== null),
   {
     message: "All hostnames must be valid domain names. (e.g. `app.example.com,staging.example.com`)"
   }
-);
+).transform((hostnames) => hostnames);
 var ConfigSchema = external_exports.object({
   cloudflareAccountId: CloudflareAccountIdSchema,
   appwardenApiToken: ApiTokenSchema,
@@ -40101,13 +40100,15 @@ var MiddlewareConfigResponseSchema = external_exports.object({
 var isWellFormedToken = (token) => {
   return typeof token === "string" && token.length >= 16;
 };
-var getMiddlewareOptions = async (apiToken, debug3 = () => {
-}) => {
+var fetchMiddlewareConfig = async (apiToken, fqdn, debug3) => {
   const url2 = new URL(
     `/v1/appwarden/config`,
     // @ts-expect-error tsup config
     "https://api.appwarden.io"
   );
+  if (fqdn) {
+    url2.searchParams.set("fqdn", fqdn);
+  }
   debug3(`[config] Request URL: ${url2.toString()}`);
   debug3(
     `[config] Token well-formed: ${isWellFormedToken(apiToken)} (length: ${apiToken?.length ?? 0})`
@@ -40137,17 +40138,25 @@ var getMiddlewareOptions = async (apiToken, debug3 = () => {
   }
   const result = await res.json();
   debug3(`[config] Response body: ${JSON.stringify(result, null, 2)}`);
-  const parsed = MiddlewareConfigResponseSchema.safeParse(result);
-  if (!parsed.success) {
-    const formattedError = JSON.stringify(parsed.error.format(), null, 2);
-    throw new Error(
-      `API response validation failed. The middleware configuration contains invalid data:
-${formattedError}`
-    );
-  }
+  return result;
+};
+var getMiddlewareOptions = async (apiToken, debug3 = () => {
+}, hostnames) => {
+  const targets = hostnames && hostnames.length > 0 ? hostnames : [void 0];
   const middlewareOptionsMap = /* @__PURE__ */ new Map();
-  for (const item of parsed.data.content) {
-    middlewareOptionsMap.set(item.url, item.options);
+  for (const fqdn of targets) {
+    const result = await fetchMiddlewareConfig(apiToken, fqdn, debug3);
+    const parsed = MiddlewareConfigResponseSchema.safeParse(result);
+    if (!parsed.success) {
+      const formattedError = JSON.stringify(parsed.error.format(), null, 2);
+      throw new Error(
+        `API response validation failed. The middleware configuration contains invalid data:
+${formattedError}`
+      );
+    }
+    for (const item of parsed.data.content) {
+      middlewareOptionsMap.set(item.url, item.options);
+    }
   }
   return middlewareOptionsMap;
 };
@@ -40196,7 +40205,8 @@ async function main() {
   try {
     middlewareOptionsMap = await getMiddlewareOptions(
       config2.appwardenApiToken,
-      debug2
+      debug2,
+      config2.hostnames
     );
   } catch (error63) {
     if (error63 instanceof Error) {
