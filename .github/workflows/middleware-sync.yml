@@ -58,7 +58,14 @@ jobs:
         run: |
           # `.middleware-version` is the source of truth for the build, so drift is
           # simply "npm has published something newer than the pin".
-          PINNED=$(cat .middleware-version)
+          if [[ ! -f .middleware-version ]]; then
+            echo "::error::.middleware-version is missing; the pinned middleware version is required"
+            exit 1
+          fi
+
+          # Strip CR: command substitution drops the trailing newline but not a
+          # stray \r, and a CRLF checkout would otherwise look like permanent drift.
+          PINNED=$(tr -d '\r' < .middleware-version)
           LATEST=$(npm view @appwarden/middleware version)
 
           if [[ -z "$LATEST" ]]; then
@@ -66,14 +73,30 @@ jobs:
             exit 1
           fi
 
+          if [[ -z "$PINNED" ]]; then
+            echo "::error::.middleware-version is empty"
+            exit 1
+          fi
+
           echo "middleware_version=$LATEST" >> "$GITHUB_OUTPUT"
 
-          if [[ "$LATEST" == "$PINNED" ]]; then
+          if [[ "$PINNED" == "$LATEST" ]]; then
             echo "in_sync=true" >> "$GITHUB_OUTPUT"
             echo "In sync with @appwarden/middleware@$LATEST"
-          else
+            exit 0
+          fi
+
+          # Only a pin behind npm counts as drift. A pin ahead of npm (e.g. a
+          # version pinned before it was published, or npm lagging a mirror) is
+          # deliberate; syncing it would propose a downgrade and the PR body
+          # would claim npm is newer, which would be false.
+          NEWEST=$(printf '%s\n%s\n' "$PINNED" "$LATEST" | sort -V | tail -n1)
+          if [[ "$NEWEST" == "$LATEST" ]]; then
             echo "in_sync=false" >> "$GITHUB_OUTPUT"
             echo "Drift detected: .middleware-version pins $PINNED, npm has $LATEST"
+          else
+            echo "in_sync=true" >> "$GITHUB_OUTPUT"
+            echo "Pin $PINNED is ahead of npm latest $LATEST; nothing to sync"
           fi
 
       - name: Open or update sync pull request
