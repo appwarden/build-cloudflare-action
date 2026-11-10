@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { isValidHostname } from "./parse-domain"
+import { canonicalizeHostname } from "./parse-domain"
 
 const OptionalBooleanSchema = z
   .union([z.string(), z.boolean(), z.undefined()])
@@ -34,7 +34,10 @@ const ApiTokenSchema = z
       "appwardenApiToken appears to be invalid (too short). Please check your API token.",
   })
 
-// Optional comma-separated list of hostnames to filter which domains are built
+// Optional comma-separated list of hostnames to filter which domains are built.
+// Each hostname is canonicalized (lower case, no port, no trailing dot) so it
+// can be used verbatim as the API's `?fqdn=` query parameter, and a token that
+// is not a bare hostname is rejected.
 const HostnamesSchema = z
   .union([z.string(), z.undefined()])
   .transform((val) => {
@@ -42,27 +45,24 @@ const HostnamesSchema = z
       return undefined
     }
 
-    return val
+    const hostnames = val
       .split(",")
       .map((h) => h.trim())
       .filter((h) => h.length > 0)
-  })
-  .refine(
-    async (hostnames) => {
-      if (hostnames === undefined) {
-        return true
-      }
 
-      const results = await Promise.all(
-        hostnames.map((h) => isValidHostname(h)),
-      )
-      return results.every((r) => Boolean(r))
-    },
+    return hostnames.length > 0 ? hostnames : undefined
+  })
+  .transform((hostnames) => hostnames?.map(canonicalizeHostname))
+  .refine(
+    (hostnames) =>
+      hostnames === undefined || hostnames.every((h) => h !== null),
     {
       message:
         "All hostnames must be valid domain names. (e.g. `app.example.com,staging.example.com`)",
     },
   )
+  // The refine above guarantees no nulls remain.
+  .transform((hostnames) => hostnames as string[] | undefined)
 
 export const ConfigSchema = z.object({
   cloudflareAccountId: CloudflareAccountIdSchema,

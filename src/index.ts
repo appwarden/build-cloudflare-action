@@ -68,12 +68,15 @@ export async function main() {
 
   debug(`[config] Fetching middleware configuration`)
 
-  // Fetch middleware options for all hostnames from API
+  // Fetch middleware options from the API. When specific hostnames are
+  // requested, fetch each one with `?fqdn=` so a domain-restricted API token is
+  // permitted to read it; otherwise fetch the whole account configuration.
   let middlewareOptionsMap
   try {
     middlewareOptionsMap = await getMiddlewareOptions(
       config.appwardenApiToken,
       debug,
+      config.hostnames,
     )
   } catch (error) {
     if (error instanceof Error) {

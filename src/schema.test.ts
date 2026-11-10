@@ -69,5 +69,55 @@ describe("schema", () => {
 
       expect(result.success).toBe(false)
     })
+
+    it("should canonicalize case and a trailing dot", async () => {
+      const result = await ConfigSchema.safeParseAsync({
+        ...validConfig,
+        hostnames: "APP.Example.COM,app.example.com.",
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data?.hostnames).toEqual([
+        "app.example.com",
+        "app.example.com",
+      ])
+    })
+
+    it("should reject a hostname carrying a scheme", async () => {
+      const result = await ConfigSchema.safeParseAsync({
+        ...validConfig,
+        hostnames: "https://app.example.com",
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject a hostname carrying a path", async () => {
+      const result = await ConfigSchema.safeParseAsync({
+        ...validConfig,
+        hostnames: "app.example.com/foo",
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should reject a hostname carrying a port", async () => {
+      const result = await ConfigSchema.safeParseAsync({
+        ...validConfig,
+        hostnames: "app.example.com:8080",
+      })
+
+      expect(result.success).toBe(false)
+    })
+
+    it("should treat a list of only separators as undefined", async () => {
+      const result = await ConfigSchema.safeParseAsync({
+        ...validConfig,
+        hostnames: ", ,",
+      })
+
+      expect(result.success).toBe(true)
+      expect(result.data?.hostnames).toBeUndefined()
+    })
   })
 })

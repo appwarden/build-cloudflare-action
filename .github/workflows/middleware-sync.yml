@@ -56,26 +56,24 @@ jobs:
       - name: Check for middleware drift
         id: drift
         run: |
-          # The build resolves the latest published middleware version and records
-          # it in .middleware-version, so any change under dist/ means we drifted.
-          BUILD_OUTPUT=$(npm run build --silent 2>&1)
-          echo "$BUILD_OUTPUT"
+          # `.middleware-version` is the source of truth for the build, so drift is
+          # simply "npm has published something newer than the pin".
+          PINNED=$(cat .middleware-version)
+          LATEST=$(npm view @appwarden/middleware version)
 
-          VERSION=$(echo "$BUILD_OUTPUT" | grep -oP 'Building with @appwarden/middleware@\K[0-9]+\.[0-9]+\.[0-9]+' || true)
-
-          if [[ -z "$VERSION" ]]; then
-            echo "::error::Failed to extract middleware version from build output"
+          if [[ -z "$LATEST" ]]; then
+            echo "::error::Failed to resolve the latest @appwarden/middleware version"
             exit 1
           fi
 
-          echo "middleware_version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "middleware_version=$LATEST" >> "$GITHUB_OUTPUT"
 
-          if [[ -n "$(git status --porcelain -- dist .middleware-version)" ]]; then
-            echo "in_sync=false" >> "$GITHUB_OUTPUT"
-            echo "Drift detected: building with @appwarden/middleware@$VERSION changed dist/"
-          else
+          if [[ "$LATEST" == "$PINNED" ]]; then
             echo "in_sync=true" >> "$GITHUB_OUTPUT"
-            echo "In sync with @appwarden/middleware@$VERSION"
+            echo "In sync with @appwarden/middleware@$LATEST"
+          else
+            echo "in_sync=false" >> "$GITHUB_OUTPUT"
+            echo "Drift detected: .middleware-version pins $PINNED, npm has $LATEST"
           fi
 
       - name: Open or update sync pull request
@@ -109,6 +107,10 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -b "$BRANCH"
+
+          # Move the pin forward, then rebuild dist/ against it.
+          echo "$VERSION" > .middleware-version
+          npm run build
 
           cat > .changeset/middleware-sync.md << EOF
           ---

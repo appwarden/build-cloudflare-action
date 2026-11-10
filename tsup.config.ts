@@ -1,22 +1,39 @@
-import { writeFileSync } from "node:fs"
+import { readFileSync, writeFileSync } from "node:fs"
 import { defineConfig } from "tsup"
 
 const v = (value: string | number | boolean) => JSON.stringify(value)
+
+const VERSION_FILE = ".middleware-version"
 
 const getLatestMiddleware = () =>
   fetch("https://registry.npmjs.org/@appwarden/middleware/latest")
     .then((res) => res.json())
     .then((result) => result.version)
 
-export default defineConfig(async () => {
-  const middlewareVersion = await getLatestMiddleware()
-  if (!middlewareVersion) {
-    throw new Error("Failed to fetch latest middleware version")
+const getPinnedMiddleware = () => {
+  try {
+    return readFileSync(VERSION_FILE, "utf8").trim()
+  } catch {
+    return ""
   }
+}
 
-  // Record the version we pinned in a committed file so the scheduled
-  // middleware-sync workflow can detect drift from the latest published version.
-  writeFileSync(".middleware-version", `${middlewareVersion}\n`)
+export default defineConfig(async () => {
+  // The committed `.middleware-version` is the source of truth for the version
+  // bundled into dist/, so a build is reproducible and CI's "Check for
+  // uncommitted changes" guard is meaningful. Resolving the latest published
+  // version here instead would make every build depend on npm state, so that
+  // guard would fail whenever a newer version is published.
+  //
+  // The scheduled middleware-sync workflow is what moves this pin forward.
+  let middlewareVersion = getPinnedMiddleware()
+  if (!middlewareVersion) {
+    middlewareVersion = await getLatestMiddleware()
+    if (!middlewareVersion) {
+      throw new Error("Failed to fetch latest middleware version")
+    }
+    writeFileSync(VERSION_FILE, `${middlewareVersion}\n`)
+  }
 
   console.log(`Building with @appwarden/middleware@${middlewareVersion}\n`)
 

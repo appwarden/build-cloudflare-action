@@ -150,5 +150,70 @@ describe("utils", () => {
       expect(result).toBeInstanceOf(Map)
       expect(result.size).toBe(0)
     })
+
+    it("should fetch each requested hostname with a fqdn query parameter", async () => {
+      mockFetch.mockImplementation(async (url: URL) => {
+        const fqdn = url.searchParams.get("fqdn")
+        return {
+          json: async () => ({
+            content: [{ url: fqdn, options: mockMiddlewareOptions }],
+          }),
+          headers: {
+            get: () => "application/json",
+          },
+          status: 200,
+        }
+      })
+
+      const result = await getMiddlewareOptions(mockApiToken, undefined, [
+        "app.example.com",
+        "staging.example.com",
+      ])
+
+      // One request per hostname, each scoped with `?fqdn=` so a
+      // domain-restricted token is permitted to read it.
+      expect(mockFetch).toHaveBeenCalledTimes(2)
+      const requestedUrls = mockFetch.mock.calls.map((call) =>
+        call[0].toString(),
+      )
+      expect(requestedUrls).toContain(
+        "https://bot-gateway.appwarden.io/v1/appwarden/config?fqdn=app.example.com",
+      )
+      expect(requestedUrls).toContain(
+        "https://bot-gateway.appwarden.io/v1/appwarden/config?fqdn=staging.example.com",
+      )
+
+      expect(result.size).toBe(2)
+      expect(result.get("app.example.com")).toEqual(mockMiddlewareOptions)
+      expect(result.get("staging.example.com")).toEqual(mockMiddlewareOptions)
+    })
+
+    it("should not set a fqdn query parameter when no hostnames are requested", async () => {
+      await getMiddlewareOptions(mockApiToken)
+
+      expect(mockFetch).toHaveBeenCalledTimes(1)
+      const requestedUrl = mockFetch.mock.calls[0][0].toString()
+      expect(requestedUrl).not.toContain("fqdn")
+    })
+
+    it("should surface the API error when a requested hostname is refused", async () => {
+      mockFetch.mockResolvedValue({
+        status: 403,
+        headers: {
+          get: () => "application/json",
+        },
+        json: async () => ({
+          error: {
+            message:
+              "Access denied: this token is not permitted to act on 'app.example.com'",
+            code: "DOMAIN_NOT_PERMITTED",
+          },
+        }),
+      })
+
+      await expect(
+        getMiddlewareOptions(mockApiToken, undefined, ["app.example.com"]),
+      ).rejects.toThrow("DOMAIN_NOT_PERMITTED")
+    })
   })
 })
